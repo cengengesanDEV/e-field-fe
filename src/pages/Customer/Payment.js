@@ -196,7 +196,7 @@ function Payment() {
                           key={index + 1}
                           onClick={(e) => handleTimeBooking(clock)}
                           type="primary"
-                          disabled={clock < forceDisable}
+                          disabled={(fieldData.booking && fieldData.booking.includes(clock)) || clock < forceDisable}
                           danger={
                             bookingTime.clockIn == clock ||
                             bookingTime.clockOut == clock
