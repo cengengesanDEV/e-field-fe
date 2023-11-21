@@ -87,19 +87,40 @@ function Lapangan() {
                     },
                   ]}
                 />
-                {/* <TitleName size={5} color="abu" label="Price" /> */}
-                <div className="w-100 gap-4 d-flex flex-row justify-content-between">
-                  <div className="">
-                    {/* <p style={{color:'grey', marginBottom:'10px'}}>Min</p> */}
-                    <TitleName size={5} color="abu" label="minimal" />
-                    <Input />
-                  </div>
-                  <div className="">
-                    {/* <p style={{color:'grey', marginBottom:'10px'}}>Max</p> */}
-                    <TitleName size={5} color="abu" label="maximal" />
-                    <Input />
-                  </div>
-                </div>
+                <TitleName size={5} color="abu" label="Sorting" />
+                <Select
+                  style={{ width: "100%" }}
+                  showSearch
+                  placeholder="Select Location Soccer Fields"
+                  optionFilterProp="children"
+                  onChange={onChangeLocation}
+                  // onSearch={onSearch}
+                  autoClearSearchValue={true}
+                  allowClear={true}
+                  filterOption={(input, option) => (option?.label ?? "").toLowerCase().includes(input.toLowerCase())}
+                  options={[
+                    {
+                      value: "cheapest",
+                      label: "cheapest",
+                    },
+                    {
+                      value: "Jakarta Selatan",
+                      label: "Jakarta Selatan",
+                    },
+                    {
+                      value: "Jakarta Barat",
+                      label: "Jakarta Barat",
+                    },
+                    {
+                      value: "Jakarta Timur",
+                      label: "Jakarta Timur",
+                    },
+                    {
+                      value: "Jakarta Pusat",
+                      label: "Jakarta Pusat",
+                    },
+                  ]}
+                />
 
                 <div className="d-flex flex-row justify-content-start gap-2 mt-4">
                   <Button type="primary">Filter</Button>

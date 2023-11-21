@@ -56,13 +56,19 @@ function Navbar() {
               <p to="#" className={css.Pembatas}>
                 |
               </p>
+              <Link to="/profile" className={css.list}>
+                Profile
+              </Link>
+              <p to="#" className={css.Pembatas}>
+                |
+              </p>
               <Link to="/fields" className={css.list}>
                 Fields
               </Link>
               <p to="#" className={css.Pembatas}>
                 |
               </p>
-              <Link to="#" className={css.list}>
+              <Link to="/paymentowner" className={css.list}>
                 Payment
               </Link>
               <p to="#" className={css.Pembatas}>

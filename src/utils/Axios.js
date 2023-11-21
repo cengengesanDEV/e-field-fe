@@ -21,6 +21,18 @@ export const getProfile = (token) => {
   });
 };
 
+export const getFieldUserId = (token) => {
+  return axios.get(`https://e-field.vercel.app/api/field/detail/owner`, {
+    headers:{
+      'x-access-token' : token
+    }
+  });
+};
+
+export const getDetailFieldOwner = (id) => {
+  return axios.get(`https://e-field.vercel.app/api/field/images/${id}`);
+};
+
 export const allFieldCustomer = (name = '', city = '', sort = '', page = 1) => {
   return axios.get(`https://e-field.vercel.app/api/field?limit=6&page=${page}&city=${city}&name=${name}&sort=${sort}`);
 };
@@ -50,6 +62,23 @@ export const changePassword = (token,body) => {
 
 export const changeIdentity = (token,body) => {
   return axios.patch(`https://e-field.vercel.app/api/users/ktp`, body, {
+    headers:{
+      'x-access-token' : token
+    }
+  });
+};
+
+
+export const addFieldOwner = (token,body) => {
+  return axios.post(`https://e-field.vercel.app/api/field`, body, {
+    headers:{
+      'x-access-token' : token
+    }
+  });
+};
+
+export const editFieldOwner = (token,body, id) => {
+  return axios.patch(`https://e-field.vercel.app/api/field/${id}`, body, {
     headers:{
       'x-access-token' : token
     }

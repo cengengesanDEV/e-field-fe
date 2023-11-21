@@ -78,7 +78,7 @@ function Payment() {
     }
   };
 
-  console.log("CLOCK", bookingTime);
+  // console.log("CLOCK", bookingTime);
 
   return (
     <>
