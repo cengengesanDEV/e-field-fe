@@ -1,14 +1,17 @@
-import { Table, Typography, Space, Tag } from "antd";
+import { Table, Typography, Space, Tag, Select, Input } from "antd";
 import React from "react";
 
 function PaymentOwner() {
-    
   const columns = [
+    {
+      title: "no",
+      dataIndex: "no",
+      key: "no",
+    },
     {
       title: "Name",
       dataIndex: "name",
       key: "name",
-      render: (text) => <a>{text}</a>,
     },
     {
       title: "Age",
@@ -75,13 +78,59 @@ function PaymentOwner() {
       tags: ["cool", "teacher"],
     },
   ];
+
   return (
     <>
       <div className="p-4">
         <div>
-          <Typography.Title level={3} className="my-5" underline>
+          <Typography.Title level={3} className="my-3" underline>
             Confirm Payment
           </Typography.Title>
+
+          <Select
+            showSearch
+            placeholder="History status"
+            // value={status}
+            // onChange={changeStatus}
+            allowClear
+            style={{ width: "200px" }}
+            options={[
+              {
+                value: "pending",
+                label: "Menunggu konfirmasi",
+              },
+              {
+                value: "success",
+                label: "Sudah dikonfirmasi",
+              },
+            ]}
+          />
+          <hr />
+
+
+          <div className="d-flex flex-row align-items-center justify-content-start gap-2 my-3">
+          <Typography.Title level={5} className="">search : </Typography.Title>
+            <Input placeholder="search name" style={{ width: "200px" }} />
+            <Select
+              showSearch
+              placeholder="type field"
+              // value={status}
+              // onChange={changeStatus}
+              allowClear
+              style={{ width: "200px" }}
+              options={[
+                {
+                  value: "grass",
+                  label: "Grass",
+                },
+                {
+                  value: "matras",
+                  label: "Matras",
+                },
+              ]}
+            />
+          </div>
+
           <Table columns={columns} dataSource={data} />
         </div>
       </div>

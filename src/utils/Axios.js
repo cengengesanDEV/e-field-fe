@@ -84,3 +84,13 @@ export const editFieldOwner = (token,body, id) => {
     }
   });
 };
+
+
+export const postPaymentCustomer = (token,body) => {
+  return axios.post(`https://e-field.vercel.app/api/payment/`, body, {
+    headers:{
+      'x-access-token' : token
+    }
+  });
+};
+

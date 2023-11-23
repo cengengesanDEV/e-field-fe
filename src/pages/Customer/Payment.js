@@ -11,34 +11,50 @@ import {
   Input,
   DatePicker,
   Upload,
+  message,
 } from "antd";
 import TitleName from "../../components/childern/TitleName";
 import css from "../../styles/Payment.module.css";
 import Sample from "../../assets/chair.jpg";
 import locale from "antd/es/date-picker/locale/id_ID";
 import dayjs from "dayjs";
-import { getDetailField } from "../../utils/Axios";
-import { useParams } from "react-router-dom";
+import { getDetailField, postPaymentCustomer } from "../../utils/Axios";
+import { useNavigate, useParams } from "react-router-dom";
+import moment from "moment/moment";
+import { useSelector } from "react-redux";
 
 function Payment() {
+
+  const profile = useSelector(state => state.auth.profile)
+  const token = useSelector(state => state.auth.token)
+  const navigate = useNavigate()
+
+
   const [bookingTime, setBookingTime] = useState({
     clockIn: null,
     clockOut: null,
   });
-  const [forceDisable, setForceDisable] = useState(null);
-  const [val, setVal] = useState({});
+  const [username, setUsername] = useState(null);
+  const [bukti, setBukti] = useState(null)
   const { Title } = Typography;
   const [date, setDate] = useState(new Date());
   const [fieldData, setFieldData] = useState(null);
-  const [hour,setHour] = useState([])
+  const [hour, setHour] = useState([])
+  const [showimage, setShowimage] = useState(true)
   const params = useParams();
 
-  const onChange = (e) => {
-    setVal({ ...val, [e.target.name]: e.target.value });
+
+  const costing = (price) => {
+    return (
+      "Rp " +
+      parseFloat(price)
+        .toFixed()
+        .replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.")
+    );
   };
 
   const onChangeDate = (date) => {
-    console.log(new Date());
+    // console.log(new Date());
     setDate(date);
   };
 
@@ -49,40 +65,79 @@ function Payment() {
 
   const getField = async () => {
     try {
-      const dataField = await getDetailField(params.id, date)
+      // console.log("dataeww", moment(date).format('YYYY-MM-DD'))
+      const dataField = await getDetailField(params.id, moment(date).format('YYYY-MM-DD'))
       await setFieldData(dataField.data.data);
-      const dataHour = []
-      console.log(dataField)
-      for (let i = dataField.data.data.field.start_hour; i <= dataField.data.data.field.end_hour; i++) {
-        dataHour.push(i)
-      }
       setBookingTime({ ...bookingTime, clockIn: null, clockOut: null })
-      setHour(dataHour)
+      setHour(dataField.data.data.dataValue)
     } catch (error) {
       console.log({ error });
     }
   };
 
-  const handleTimeBooking = (e) => {
-    const clock = e;
-    if (clock == bookingTime.clockIn) {
-      setForceDisable(null);
-      setBookingTime({ ...bookingTime, clockIn: null, clockOut: null });
-    } else if (clock == bookingTime.clockOut) {
-      setBookingTime({ ...bookingTime, clockOut: null });
-    } else if (bookingTime.clockIn == null) {
-      setForceDisable(clock);
-      setBookingTime({ ...bookingTime, clockIn: clock });
-    } else {
-      setBookingTime({ ...bookingTime, clockOut: clock });
-    }
-  };
 
-  // console.log("CLOCK", bookingTime);
+
+  const onChangeBooking = (e) => {
+    setBookingTime({
+      clockIn : e.start,
+      clockOut : e.end
+    })
+  }
+
+  const onChangeImage = (file) => {
+    if (file.type == "image/jpeg" || file.type == "image/png" || file.type == "image/PNG" || file.type == "image/JPEG" || file.type == "image/jpg" || file.type == "image/JPG") {
+      setShowimage(true);
+      setBukti(file);
+    } else {
+      setShowimage(false);
+      setBukti(null);
+      message.info("Format can`t accept please insert picture again");
+    }
+  }
+
+  
+  const postPayment = () => {
+    // console.log("PayloadPayment", username, moment(date).format('DD-MM-YYYY'), bookingTime, bukti)
+    if(!username) return message.info('please insert username booking !')
+    if(!bookingTime.clockIn || !bookingTime.clockOut) return message.info('please choose time booking !')
+    if(!bukti) return message.info('please uploading file transfer !')
+
+    let body = {
+      image : bukti,
+      field_id : params.id,
+      start_play : bookingTime.clockIn,
+      end_play : bookingTime.clockOut,
+      booking_date : moment(date).format('YYYY-MM-DD'),
+      total_payment : fieldData.field.price,
+      play_date : moment().format('YYYY-MM-DD')
+    }
+
+    const formData = new FormData()
+    Object.keys(body).forEach((e,index) => {
+      formData.append(e, body[e])
+    })
+
+    postPaymentCustomer(token,formData)
+    .then((res) => {
+      setBookingTime({
+        clockIn: null,
+        clockOut: null,
+      })
+      setUsername(null)
+      setBukti(null)
+      setDate(new Date())
+      console.log("response", res.data.data)
+      message.success(res.data.msg)
+      navigate('/historypayment')
+    })
+    .catch((error) => {
+      message.info('server maintanance')
+    })
+  }
+
 
   return (
     <>
-      {/* <Navbar /> */}
 
       <div className="w-100">
         <Row>
@@ -146,7 +201,7 @@ function Payment() {
                       />}
                       {fieldData?.images && fieldData.images.map((images) => (
                         <img
-                          src={images}
+                          src={images.image}
                           alt=""
                           width={150}
                           height={100}
@@ -176,7 +231,7 @@ function Payment() {
                           <p>{fieldData?.field?.name || '-'}</p>
                           <p>{fieldData?.field?.city || '-'}</p>
                           <p>{`${fieldData?.field?.start_hour || '-'}:00 - ${fieldData?.field?.end_hour || '-'}:00`}</p>
-                          <p>{`${fieldData?.field?.price || '-'} / hour`}</p>
+                          <p>{`${costing(fieldData?.field?.price || 0)} / hour`}</p>
                         </Col>
                       </Row>
                     </div>
@@ -191,20 +246,17 @@ function Payment() {
                     />
                     <hr style={{ color: "#69b1ff" }} />
                     <div className="d-flex flex-row flex-wrap w-100 gap-3">
-                      {hour.length>0 && hour.map((clock, index) => (
-                        <Button
-                          key={index + 1}
-                          onClick={(e) => handleTimeBooking(clock)}
-                          type="primary"
-                          disabled={(fieldData.booking && fieldData.booking.includes(clock)) || clock < forceDisable}
-                          danger={
-                            bookingTime.clockIn == clock ||
-                            bookingTime.clockOut == clock
-                          }
-                        >
-                          {clock}:00
-                        </Button>
-                      ))}
+                      
+                      {/* Button Booking */}
+                        {hour.map((e,index) => (
+                          <Row className="d-flex flex-row flex-wrap">
+                            <Col span={24} className="d-flex flex-column align-items-center gap-2" style={{backgroundColor:'#eaeaea', padding:'15px', borderRadius: "20px", }}>
+                              <p style={{ fontFamily: "Tilt Neon", fontWeight:'bolder' }}>{`${e.start <= 9 ? 0 : ''}${e.start}:00 - ${e.end  <= 9 ? 0 : ''}${e.end  == 24 ? '00' : e.end}:00`}</p>
+                              <Button onClick={() => onChangeBooking(e)} type='primary' disabled={e.isBooked}>{e.isBooked ? 'Booked' : 'Ready'}</Button>
+                            </Col>
+                          </Row>
+                        ))}
+      
                     </div>
                     <hr style={{ color: "#69b1ff" }} />
                     <TitleName
@@ -233,11 +285,11 @@ function Payment() {
                     >
                       <div className="py-2">
                         <Title level={5}>Username</Title>
-                        <Input placeholder="Username Booking" />
+                        <Input value={username} status={username ? '' : 'error'}  onChange={(e) => setUsername(e.target.value)} placeholder="Username Booking" />
                       </div>
                       <div className="py-2">
                         <Title level={5}>No Identity</Title>
-                        <Input placeholder="Number Identity" disabled />
+                        <Input value={profile.no_identity} placeholder="Number Identity" disabled />
                       </div>
                     </Card>
                   </Col>
@@ -252,15 +304,15 @@ function Payment() {
                     >
                       <div className="py-2">
                         <Title level={5}>Clock In</Title>
-                        <Input placeholder="Clock in" disabled />
+                        <Input value={`${bookingTime?.clockIn || '00'}:00`} placeholder="Clock in" disabled />
                       </div>
                       <div className="py-2">
                         <Title level={5}>Clock Out</Title>
-                        <Input placeholder="Clock out" disabled />
+                        <Input value={`${bookingTime?.clockOut || '00'}:00`} placeholder="Clock out" disabled />
                       </div>
                       <div className="py-2">
                         <Title level={5}>Date</Title>
-                        <Input placeholder="Date" disabled />
+                        <Input value={moment(date).format('DD-MM-YYYY')} placeholder="Date" disabled />
                       </div>
                     </Card>
                   </Col>
@@ -278,8 +330,12 @@ function Payment() {
                         <p>BCA 4104021123 a/n Muhammad farisan H</p>
                       </div>
                       <div className="py-2">
+                        <Title level={5}>Total Payment</Title>
+                        <p>{costing(fieldData?.field?.price || 0)}</p>
+                      </div>
+                      <div className="py-2">
                         <Title level={5}>Upload Payment</Title>
-                        <Upload>
+                        <Upload beforeUpload={true} value={bukti} maxCount={1} showUploadList={showimage} onChange={({file}) => onChangeImage(file)}>
                           <Button type="primary" style={{ width: "100%" }}>
                             upload
                           </Button>
@@ -288,7 +344,7 @@ function Payment() {
                     </Card>
                   </Col>
                 </Row>
-                <Button type="primary">Payment</Button>
+                <Button type="primary" onClick={postPayment} >Payment</Button>
               </div>
             </div>
           </Col>
