@@ -115,7 +115,7 @@ function LapanganOwner() {
       <div className='p-4'>
         <Button type='primary'>Add Field</Button>
         <Button type='ghost' danger onClick={() => navigate('/editlapangan')}>
-          Edit Field
+          View Field
         </Button>
         <hr />
         <Row gutter={[20, 20]}>

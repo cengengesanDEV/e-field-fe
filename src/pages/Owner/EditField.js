@@ -5,6 +5,7 @@ import {
   Empty,
   Input,
   InputNumber,
+  Modal,
   Row,
   Select,
   Space,
@@ -82,14 +83,16 @@ function EditField() {
   const [clock, setClock] = useState(temp);
   const [initialVal, setInitialVal] = useState({});
   const [deletedImages, setDeletedImages] = useState([]);
+  const [modalVisibility, setModalVisibility] = useState({
+    delete: false,
+    saveEdit: false,
+  });
+  const [isSaving, setIsSaving] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
 
-  useEffect(() => {
-    getField();
+  const toggleModalVisibility = useCallback((key) => {
+    setModalVisibility((state) => ({ ...state, [key]: !state[key] }));
   }, []);
-
-  useEffect(() => {
-    console.log(deletedImages);
-  }, [deletedImages]);
 
   const getField = () => {
     getFieldUserId(token)
@@ -131,7 +134,6 @@ function EditField() {
       const newImageList = val.images.map((item) =>
         item[keyToMatch] === deletedImage[keyToMatch] ? e : item
       );
-      console.log(newImageList);
       setVal((val) => ({ ...val, images: newImageList }));
 
       // Add to deletedImages only when keyToMatch is 'image'
@@ -155,44 +157,58 @@ function EditField() {
     setVal(value);
     setInitialVal(value);
     setDeletedImages([]);
+    window.scrollTo(0, 0);
   }, []);
 
   const handleSubmit = useCallback(
     async (value) => {
       try {
         const { id, ...val } = value;
-        console.log(val);
         let formData = new FormData();
+        if (typeof val['image_cover'] === 'string') delete val['image_cover'];
 
-        deletedImages.forEach((image) =>
-          formData.append('deletedImage', image)
-        );
-        Object.keys(val).forEach((key, idx) => {
+        Object.keys(val).forEach((key) => {
+          setIsSaving(true);
           if (key === 'images') {
             val.images.forEach((image) => {
-              if (!image.image) formData.append(`images[${idx}]`, image);
+              if (!image.image) formData.append(`images`, image);
             });
           } else {
             formData.append(key, val[key]);
           }
         });
-
+        const deletedImage = deletedImages.join(',');
+        if (deletedImage) formData.append('imageDelete', deletedImage);
         await editFieldOwner(token, formData, id);
+        toggleModalVisibility('saveEdit');
+        setIsSaving(false);
         message.success('Edit Field Success');
+        handleReset();
       } catch (error) {
         message.info(error.response.data.msg);
       }
     },
-    [token, deletedImages]
+    [token, deletedImages, toggleModalVisibility]
   );
 
+  const handleReset = useCallback(() => {
+    setVal({});
+    setInitialVal({});
+    setDeletedImages([]);
+  }, []);
+
+  useEffect(() => {
+    getField();
+  }, []);
   return (
     <>
       <div className='p-4'>
         <Button type='ghost' onClick={() => navigate('/fields')}>
           Add Field
         </Button>
-        <Button type='primary'>Edit Field</Button>
+        <Button type='primary'>
+          {isEditMode ? 'Edit Field' : 'View Field'}
+        </Button>
 
         <div className='my-4'>
           <hr />
@@ -216,11 +232,13 @@ function EditField() {
                         value={val.name}
                         onChange={(e) => onChange(e)}
                         placeholder='Name Field Booking'
+                        disabled={!isEditMode}
                       />
                     </div>
                     <div className='py-2'>
                       <Title level={5}>Type Field</Title>
                       <Select
+                        disabled={!isEditMode}
                         style={{ width: '100%' }}
                         showSearch
                         placeholder='Select Type Soccer Fields'
@@ -252,6 +270,7 @@ function EditField() {
                       <Title level={5}>Open Field</Title>
                       {/* <Input name="start_hour" onChange={(e) => onChange(e)} placeholder="input hours only" /> */}
                       <Select
+                        disabled={!isEditMode}
                         style={{ width: '100%' }}
                         showSearch
                         placeholder='open field'
@@ -272,6 +291,7 @@ function EditField() {
                       <Title level={5}>Close Field</Title>
                       {/* <Input name="end_hour" onChange={(e) => onChange(e)} placeholder="input hours only" /> */}
                       <Select
+                        disabled={!isEditMode}
                         style={{ width: '100%' }}
                         showSearch
                         placeholder='close field'
@@ -295,6 +315,7 @@ function EditField() {
                         value={val.description}
                         onChange={(e) => onChange(e)}
                         placeholder='Description Booking'
+                        disabled={!isEditMode}
                       />
                     </div>
                     <div className='py-2'>
@@ -308,6 +329,7 @@ function EditField() {
                           onChange(parser, 'number');
                         }}
                         placeholder='price'
+                        disabled={!isEditMode}
                       />
                     </div>
                   </Card>
@@ -326,6 +348,7 @@ function EditField() {
                     <div className='py-2'>
                       <Title level={5}>Location</Title>
                       <Select
+                        disabled={!isEditMode}
                         style={{ width: '100%' }}
                         showSearch
                         placeholder='Select Location Soccer Fields'
@@ -370,6 +393,7 @@ function EditField() {
                         value={val.address}
                         onChange={(e) => onChange(e)}
                         placeholder='Address Booking'
+                        disabled={!isEditMode}
                       />
                     </div>
                   </Card>
@@ -388,6 +412,7 @@ function EditField() {
                     <div className='py-2'>
                       <Title level={5}>Upload Image Cover</Title>
                       <Upload
+                        disabled={!isEditMode}
                         accept='image/png, image/jpg, image/jpeg, image/webp'
                         maxCount={1}
                         showUploadList={true}
@@ -403,6 +428,7 @@ function EditField() {
                         <Button
                           className='flex gap-2 items-center'
                           style={{ backgroundColor: '#ffb73f' }}
+                          disabled={!isEditMode}
                         >
                           Upload
                         </Button>
@@ -413,6 +439,7 @@ function EditField() {
                       {val.images.length > 0 &&
                         val.images.map((image, idx) => (
                           <Upload
+                            disabled={!isEditMode}
                             key={idx}
                             accept='image/png, image/jpg, image/jpeg, image/webp'
                             defaultFileList={[
@@ -431,6 +458,7 @@ function EditField() {
                           >
                             <Button
                               className='flex gap-2 items-center'
+                              disabled={!isEditMode}
                               style={{ backgroundColor: '#ffb73f' }}
                             >
                               Upload
@@ -457,6 +485,7 @@ function EditField() {
                         placeholder='Atas nama'
                         value={profile?.bank_name || '-'}
                         readOnly
+                        disabled={!isEditMode}
                       />
                     </div>
                     <div className='py-2'>
@@ -465,33 +494,43 @@ function EditField() {
                         placeholder='Information Bank & No Rekening'
                         value={profile?.no_rekening || '-'}
                         readOnly
+                        disabled={!isEditMode}
                       />
                     </div>
                   </Card>
                 </Col>
               </Row>
+
               <div className='d-flex w-100 flex-row justify-content-end gap-4'>
                 <Button
                   type='primary'
                   danger
                   className='my-3'
                   style={{ width: '200px' }}
-                  onClick={() => {
-                    setVal({});
-                    setInitialVal({});
-                  }}
+                  onClick={handleReset}
                 >
                   Close
                 </Button>
-                <Button
-                  type='primary'
-                  className='my-3'
-                  style={{ width: '200px' }}
-                  disabled={isValueNotChanged}
-                  onClick={() => handleSubmit(val)}
-                >
-                  Save
-                </Button>
+                {isEditMode ? (
+                  <Button
+                    type='primary'
+                    className='my-3'
+                    style={{ width: '200px' }}
+                    disabled={isValueNotChanged}
+                    onClick={() => toggleModalVisibility('saveEdit')}
+                  >
+                    Save
+                  </Button>
+                ) : (
+                  <Button
+                    type='primary'
+                    className='my-3'
+                    style={{ width: '200px' }}
+                    onClick={() => setIsEditMode(true)}
+                  >
+                    Edit
+                  </Button>
+                )}
               </div>
             </>
           )}
@@ -516,8 +555,19 @@ function EditField() {
                     type='primary'
                     onClick={() => {
                       handleOnSelect(value);
+                      setIsEditMode(false);
                     }}
                     style={{ marginRight: '10px' }}
+                  >
+                    View
+                  </Button>
+                  <Button
+                    type='primary'
+                    onClick={() => {
+                      handleOnSelect(value);
+                      setIsEditMode(true);
+                    }}
+                    style={{ marginRight: '10px', backgroundColor: '#ffb73f' }}
                   >
                     Edit
                   </Button>
@@ -529,6 +579,16 @@ function EditField() {
             }))}
           />
         </div>
+        <Modal
+          title='Apakah anda yakin ingin menyimpan perubahan?'
+          open={modalVisibility.saveEdit}
+          onCancel={() => toggleModalVisibility('saveEdit')}
+          onOk={() => {
+            handleSubmit(val);
+          }}
+          okText='Ok'
+          confirmLoading={isSaving}
+        />
       </div>
     </>
   );
