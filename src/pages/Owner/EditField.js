@@ -87,6 +87,10 @@ function EditField() {
     getField();
   }, []);
 
+  useEffect(() => {
+    console.log(deletedImages);
+  }, [deletedImages]);
+
   const getField = () => {
     getFieldUserId(token)
       .then((res) => setField(res.data.data))
@@ -121,24 +125,18 @@ function EditField() {
   }, []);
 
   const onChangeImageDetail = useCallback(
-    (e, isSingle, deletedImage) => {
-      if (isSingle && deletedImage) {
-        let keyToMatch = deletedImage.image ? 'image' : 'name';
+    (e, deletedImage) => {
+      let keyToMatch = deletedImage.image ? 'image' : 'name';
 
-        const newImageList = val.images.map((item) =>
-          item[keyToMatch] === deletedImage[keyToMatch] ? e : item
-        );
+      const newImageList = val.images.map((item) =>
+        item[keyToMatch] === deletedImage[keyToMatch] ? e : item
+      );
+      console.log(newImageList);
+      setVal((val) => ({ ...val, images: newImageList }));
 
-        setVal((val) => ({ ...val, images: newImageList }));
-
-        // Add to deletedImages only when keyToMatch is 'image'
-        if (keyToMatch === 'image') {
-          setDeletedImages((images) => [...images, deletedImage.image]);
-        }
-      } else if (isSingle && !deletedImage) {
-        // rencana buat kalo kurang dari 3 nanti ada tambahan buat upload
-      } else {
-        setVal((val) => ({ ...val, images: e }));
+      // Add to deletedImages only when keyToMatch is 'image'
+      if (keyToMatch === 'image') {
+        setDeletedImages((images) => [...images, deletedImage.image]);
       }
     },
     [val.images]
@@ -165,28 +163,27 @@ function EditField() {
         const { id, ...val } = value;
         console.log(val);
         let formData = new FormData();
-        Object.keys(val).forEach((key) => {
+
+        deletedImages.forEach((image) =>
+          formData.append('deletedImage', image)
+        );
+        Object.keys(val).forEach((key, idx) => {
           if (key === 'images') {
             val.images.forEach((image) => {
-              if (image) formData.append(`images`, image.originFileObj);
+              if (!image.image) formData.append(`images[${idx}]`, image);
             });
           } else {
             formData.append(key, val[key]);
-            // if (key === 'image_cover') {
-            //   if (typeof val[key] !== 'string') {
-            //     formData.append(key, val[key]);
-            //   }
-            // } else {
-            // }
           }
         });
-        await editFieldOwner(token, formData, val.id);
+
+        await editFieldOwner(token, formData, id);
         message.success('Edit Field Success');
       } catch (error) {
         message.info(error.response.data.msg);
       }
     },
-    [token]
+    [token, deletedImages]
   );
 
   return (
@@ -413,25 +410,7 @@ function EditField() {
                     </div>
                     <div className='py-2'>
                       <Title level={5}>Upload Image Detail</Title>
-                      {val.images.length === 0 ? (
-                        <Upload
-                          accept='image/png, image/jpg, image/jpeg, image/webp'
-                          maxCount={4}
-                          multiple
-                          showUploadList={true}
-                          beforeUpload={true}
-                          onChange={({ fileList }) =>
-                            onChangeImageDetail(fileList)
-                          }
-                        >
-                          <Button
-                            className='flex gap-2 items-center'
-                            style={{ backgroundColor: '#ffb73f' }}
-                          >
-                            Upload
-                          </Button>
-                        </Upload>
-                      ) : (
+                      {val.images.length > 0 &&
                         val.images.map((image, idx) => (
                           <Upload
                             key={idx}
@@ -447,7 +426,7 @@ function EditField() {
                             showUploadList={true}
                             beforeUpload={true}
                             onChange={({ file }) =>
-                              onChangeImageDetail(file, true, image)
+                              onChangeImageDetail(file, image)
                             }
                           >
                             <Button
@@ -457,8 +436,7 @@ function EditField() {
                               Upload
                             </Button>
                           </Upload>
-                        ))
-                      )}
+                        ))}
                     </div>
                   </Card>
                 </Col>
