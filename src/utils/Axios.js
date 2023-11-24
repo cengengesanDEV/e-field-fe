@@ -83,12 +83,24 @@ export const editFieldOwner = (token, body, id) => {
   });
 };
 
-
-export const postPaymentCustomer = (token,body) => {
-  return axios.post(`https://e-field.vercel.app/api/payment/`, body, {
-    headers:{
-      'x-access-token' : token
-    }
+export const deleteFieldById = (id, token) => {
+  return axios.get(`https://e-field.vercel.app/api/field/delete/${id}`, {
+    'x-access-token': token,
   });
 };
 
+export const postPaymentCustomer = (token, body) => {
+  return axios.post(`https://e-field.vercel.app/api/payment/`, body, {
+    headers: {
+      'x-access-token': token,
+    },
+  });
+};
+
+export const logout = (token) => {
+  return axios.delete(`https://e-field.vercel.app/api/auth/`, {
+    headers: {
+      'x-access-token': token,
+    },
+  });
+};
