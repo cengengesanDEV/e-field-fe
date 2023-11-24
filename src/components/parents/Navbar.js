@@ -1,17 +1,38 @@
 import React, { useCallback, useState } from 'react';
 import css from './css/Navbar.module.css';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Logos from '../../assets/JakartaLogo1.png';
-import Pattern from '../../assets/patternav.jpg';
-import { useSelector } from 'react-redux';
-import { Button, Modal } from 'antd';
+import { useDispatch, useSelector } from 'react-redux';
+import { Button, Modal, message } from 'antd';
+import { logout } from '../../utils/Axios';
+import authAction from '../../redux/actions/auth';
 
 function Navbar() {
   const profile = useSelector((state) => state.auth.profile);
   const token = useSelector((state) => state.auth.token);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogout = useCallback(async () => setIsModalOpen(false), []);
+  const handleLogout = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      await logout(token);
+      dispatch(authAction.resetReducer());
+      setIsLoading(false);
+      setIsModalOpen(false);
+      message.success('Logout Success');
+      navigate('/', {
+        replace: true,
+      });
+    } catch (error) {
+      message.info(error.response.data.msg);
+      setIsLoading(false);
+      setIsModalOpen(false);
+    }
+  }, [token, dispatch, navigate]);
+
   return (
     <>
       <div className={css.headNavbar}>
