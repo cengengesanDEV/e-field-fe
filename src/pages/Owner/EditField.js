@@ -18,7 +18,11 @@ import {
 } from 'antd';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { editFieldOwner, getFieldUserId } from '../../utils/Axios';
+import {
+  deleteFieldById,
+  editFieldOwner,
+  getFieldUserId,
+} from '../../utils/Axios';
 import { useSelector } from 'react-redux';
 import priceFormatter from '../../utils/priceFormatter';
 
@@ -80,6 +84,7 @@ function EditField() {
 
   const [field, setField] = useState([]);
   const [val, setVal] = useState({});
+  const [selectedId, setSelectedId] = useState('');
   const [clock, setClock] = useState(temp);
   const [initialVal, setInitialVal] = useState({});
   const [deletedImages, setDeletedImages] = useState([]);
@@ -89,6 +94,7 @@ function EditField() {
   });
   const [isSaving, setIsSaving] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const toggleModalVisibility = useCallback((key) => {
     setModalVisibility((state) => ({ ...state, [key]: !state[key] }));
@@ -160,6 +166,12 @@ function EditField() {
     window.scrollTo(0, 0);
   }, []);
 
+  const handleReset = useCallback(() => {
+    setVal({});
+    setInitialVal({});
+    setDeletedImages([]);
+  }, []);
+
   const handleSubmit = useCallback(
     async (value) => {
       try {
@@ -186,16 +198,31 @@ function EditField() {
         handleReset();
       } catch (error) {
         message.info(error.response.data.msg);
+        setIsSaving(false);
+        toggleModalVisibility('saveEdit');
       }
     },
-    [token, deletedImages, toggleModalVisibility]
+    [token, deletedImages, toggleModalVisibility, handleReset]
   );
 
-  const handleReset = useCallback(() => {
-    setVal({});
-    setInitialVal({});
-    setDeletedImages([]);
-  }, []);
+  const handleDelete = useCallback(
+    async (id) => {
+      try {
+        setIsDeleting(true);
+        await deleteFieldById(id, token);
+        message.success('Delete Field Success');
+        setSelectedId('');
+        setIsDeleting(false);
+        toggleModalVisibility('delete');
+        getField();
+      } catch (error) {
+        message.info(error.response.data.msg);
+        setIsDeleting(false);
+        toggleModalVisibility('delete');
+      }
+    },
+    [token, toggleModalVisibility, getField]
+  );
 
   useEffect(() => {
     getField();
@@ -571,7 +598,14 @@ function EditField() {
                   >
                     Edit
                   </Button>
-                  <Button type='primary' danger>
+                  <Button
+                    type='primary'
+                    danger
+                    onClick={() => {
+                      setSelectedId(value.id);
+                      toggleModalVisibility('delete');
+                    }}
+                  >
                     Delete
                   </Button>
                 </>
@@ -588,6 +622,16 @@ function EditField() {
           }}
           okText='Ok'
           confirmLoading={isSaving}
+        />
+        <Modal
+          title='Apakah anda yakin ingin menyimpan perubahan?'
+          open={modalVisibility.delete}
+          onCancel={() => toggleModalVisibility('delete')}
+          onOk={() => {
+            handleDelete(selectedId);
+          }}
+          okText='Ok'
+          confirmLoading={isDeleting}
         />
       </div>
     </>
