@@ -92,3 +92,30 @@ export const postPaymentCustomer = (token,body) => {
   });
 };
 
+
+export const getHistoryCustomer = (token,status) => {
+  return axios.get(`https://e-field.vercel.app/api/payment/customer/history/${status}`, {
+    headers: {
+      'x-access-token': token,
+    },
+  });
+};
+
+
+export const logout = (token) => {
+  return axios.delete(`https://e-field.vercel.app/api/auth/`, {
+    headers: {
+      'x-access-token': token,
+    },
+  });
+};
+
+
+export const getHistoryOwner = (token,status) => {
+  return axios.get(`https://e-field.vercel.app/api/payment/owner/history/${status}`, {
+    headers: {
+      'x-access-token': token,
+    },
+  });
+};
+

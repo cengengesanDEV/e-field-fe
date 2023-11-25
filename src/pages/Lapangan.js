@@ -42,6 +42,33 @@ function Lapangan() {
     }
   }
 
+  const handleFilterClick = async (isClick) => {
+    if(isClick){
+      try {
+        const result = await allFieldCustomer(filter.name, filter.location, filter?.sort || 'cheapest', page || 1)
+        setData(result.data.data)
+        setTotalPage({
+          prev : result.data.meta.prev,
+          next : result.data.meta.next,
+        })
+      } catch (error) {
+        message.error('Server maintance')
+      }
+    }else{
+      setFilter({})
+      try {
+        const result = await allFieldCustomer()
+        setData(result.data.data)
+        setTotalPage({
+          prev : result.data.meta.prev,
+          next : result.data.meta.next,
+        })
+      } catch (error) {
+        message.error('Server maintance')
+      }
+    }
+  }
+
   return (
     <>
       <div className="w-100">
@@ -52,7 +79,7 @@ function Lapangan() {
               <div className="p-4">
                 <TitleName size={4} label="FILTER" />
                 <TitleName size={5} color="abu" label="name soccer" />
-                <Input value={filter.name} name="name" onChange={onChangeName} allowClear={true} />
+                <Input value={filter.name} name="name" onChange={onChangeName} allowClear={true} placeholder="Input search name" />
                 <TitleName size={5} color="abu" label="lokasi" />
                 <Select
                   style={{ width: "100%" }}
@@ -91,7 +118,7 @@ function Lapangan() {
                 <Select
                   style={{ width: "100%" }}
                   showSearch
-                  placeholder="Select Location Soccer Fields"
+                  placeholder="Sorting Price"
                   optionFilterProp="children"
                   onChange={onChangeLocation}
                   // onSearch={onSearch}
@@ -104,27 +131,15 @@ function Lapangan() {
                       label: "cheapest",
                     },
                     {
-                      value: "Jakarta Selatan",
-                      label: "Jakarta Selatan",
-                    },
-                    {
-                      value: "Jakarta Barat",
-                      label: "Jakarta Barat",
-                    },
-                    {
-                      value: "Jakarta Timur",
-                      label: "Jakarta Timur",
-                    },
-                    {
-                      value: "Jakarta Pusat",
-                      label: "Jakarta Pusat",
-                    },
+                      value: "expensive",
+                      label: "expensive",
+                    }
                   ]}
                 />
 
                 <div className="d-flex flex-row justify-content-start gap-2 mt-4">
-                  <Button type="primary">Filter</Button>
-                  <Button>Reset</Button>
+                  <Button type="primary" onClick={() => handleFilterClick(true)}>Filter</Button>
+                  <Button onClick={() => handleFilterClick(false)}>Reset</Button>
                 </div>
 
                 <hr style={{ marginTop: "50px" }} />

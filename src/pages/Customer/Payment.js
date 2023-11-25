@@ -53,9 +53,9 @@ function Payment() {
     );
   };
 
-  const onChangeDate = (date) => {
-    // console.log(new Date());
-    setDate(date);
+  const onChangeDate = (date, dateString) => {
+    console.log(date, dateString);
+    setDate(dateString);
   };
 
   useEffect(() => {
