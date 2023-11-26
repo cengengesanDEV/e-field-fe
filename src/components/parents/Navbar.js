@@ -107,12 +107,6 @@ function Navbar() {
               <Link to='/paymentowner' className={css.list}>
                 Payment
               </Link>
-              <p to='#' className={css.Pembatas}>
-                |
-              </p>
-              <Link to='#' className={css.list}>
-                History Payment
-              </Link>
             </>
           ) : profile.role == 'admin' ? (
             <>

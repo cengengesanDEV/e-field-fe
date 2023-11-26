@@ -19,8 +19,8 @@ export const getProfile = (token) => {
   });
 };
 
-export const getFieldUserId = (token) => {
-  return axios.get(`https://e-field.vercel.app/api/field/detail/owner`, {
+export const getFieldUserId = (token, search) => {
+  return axios.get(`https://e-field.vercel.app/api/field/detail/owner?name=${search}`, {
     headers: {
       'x-access-token': token,
     },
@@ -116,8 +116,30 @@ export const logout = (token) => {
 };
 
 
-export const getHistoryOwner = (token,status) => {
-  return axios.get(`https://e-field.vercel.app/api/payment/owner/history/${status}`, {
+export const getHistoryOwner = (token,status,name,type) => {
+  return axios.get(`https://e-field.vercel.app/api/payment/owner/history?status=${status}&username=${name}&type=${type}`, {
+    headers: {
+      'x-access-token': token,
+    },
+  });
+};
+
+
+export const changeStatusPaymentOwner = (token,id,body) => {
+  return axios.patch(`https://e-field.vercel.app/api/payment/owner/status/${id}`, body, {
+    headers: {
+      'x-access-token': token,
+    },
+  });
+};
+
+
+// body
+// play_date
+// start_play
+// end_play
+export const editPaymentSchedule = (token,id,body) => {
+  return axios.patch(`https://e-field.vercel.app/api/payment/owner/booking/${id}`, body, {
     headers: {
       'x-access-token': token,
     },

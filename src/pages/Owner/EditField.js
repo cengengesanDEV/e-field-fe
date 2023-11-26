@@ -95,13 +95,14 @@ function EditField() {
   const [isSaving, setIsSaving] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [search, setSearch] = useState('')
 
   const toggleModalVisibility = useCallback((key) => {
     setModalVisibility((state) => ({ ...state, [key]: !state[key] }));
   }, []);
 
   const getField = () => {
-    getFieldUserId(token)
+    getFieldUserId(token, search)
       .then((res) => setField(res.data.data))
       .catch((err) => console.log(err));
   };
@@ -226,7 +227,7 @@ function EditField() {
 
   useEffect(() => {
     getField();
-  }, []);
+  }, [search]);
   return (
     <>
       <div className='p-4'>
@@ -561,10 +562,17 @@ function EditField() {
               </div>
             </>
           )}
-
-          <Typography.Title level={3} className='my-5' underline>
+          <Typography.Title level={3} className='mt-2' underline>
             Information Detail Fields
           </Typography.Title>
+          <div className="d-flex flex-row align-items-center mb-3">
+            <Row>
+              <Col span={24}>
+                <p  style={{fontFamily: 'Tilt Neon', paddingBottom:'10px'}}>Search Name :</p>
+                <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder='search name' allowClear />
+              </Col>
+            </Row>  
+          </div>
           <Table
             columns={columns}
             dataSource={field.map((value, index) => ({

@@ -101,6 +101,7 @@ function Payment() {
     if(!username) return message.info('please insert username booking !')
     if(!bookingTime.clockIn || !bookingTime.clockOut) return message.info('please choose time booking !')
     if(!bukti) return message.info('please uploading file transfer !')
+    if(!profile.bank_name || !profile.no_rekening) return (message.info('please insert number rekening first'), navigate('/profile'))
 
     let body = {
       image : bukti,
@@ -109,7 +110,10 @@ function Payment() {
       end_play : bookingTime.clockOut,
       booking_date : moment(date).format('YYYY-MM-DD'),
       total_payment : fieldData.field.price,
-      play_date : moment().format('YYYY-MM-DD')
+      play_date : moment().format('YYYY-MM-DD'),
+      username : username,
+      bank_name : profile.bank_name,
+      no_rekening : profile.no_rekening
     }
 
     const formData = new FormData()

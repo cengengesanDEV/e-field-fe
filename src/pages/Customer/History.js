@@ -78,6 +78,10 @@ function History() {
               value: "success",
               label: "Sudah dikonfirmasi",
             },
+            {
+              value: "cancel",
+              label: "Canceled",
+            },
           ]}
         />
         <hr />

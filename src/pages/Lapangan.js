@@ -23,6 +23,10 @@ function Lapangan() {
   const onChangeLocation = (value) => {
     setFilter({ ...filter, ["location"]: value || "" });
   };
+
+  const onChangeSort = (value) => {
+    setFilter({ ...filter, ["sort"]: value || "" });
+  };
   
 
   useEffect(() => {
@@ -69,6 +73,8 @@ function Lapangan() {
     }
   }
 
+  console.log("asdqwqw", filter)
+
   return (
     <>
       <div className="w-100">
@@ -88,6 +94,7 @@ function Lapangan() {
                   optionFilterProp="children"
                   onChange={onChangeLocation}
                   // onSearch={onSearch}
+                  value={filter.location}
                   autoClearSearchValue={true}
                   allowClear={true}
                   filterOption={(input, option) => (option?.label ?? "").toLowerCase().includes(input.toLowerCase())}
@@ -120,9 +127,10 @@ function Lapangan() {
                   showSearch
                   placeholder="Sorting Price"
                   optionFilterProp="children"
-                  onChange={onChangeLocation}
+                  onChange={onChangeSort}
                   // onSearch={onSearch}
-                  autoClearSearchValue={true}
+                  value={filter.sort}
+                  // autoClearSearchValue={true}
                   allowClear={true}
                   filterOption={(input, option) => (option?.label ?? "").toLowerCase().includes(input.toLowerCase())}
                   options={[
