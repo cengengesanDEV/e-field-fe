@@ -1,8 +1,19 @@
 import axios from 'axios';
+import { ApiWithAuth } from '../helper/CustomThrowToken';
 
-const host = process.env.REACT_APP_API_KEY;
-const hostAPI = host + '/api';
 
+
+
+
+// Testing API
+export const  API = {
+  getProfile : () => ApiWithAuth.get('users')
+}
+
+
+
+
+// API udah jadi
 export const loginAuth = (body) => {
   return axios.post(`https://e-field.vercel.app/api/auth`, body);
 };
@@ -11,13 +22,13 @@ export const registerAuth = (body) => {
   return axios.post(`https://e-field.vercel.app/api/users`, body);
 };
 
-export const getProfile = (token) => {
-  return axios.get(`https://e-field.vercel.app/api/users`, {
-    headers: {
-      'x-access-token': token,
-    },
-  });
-};
+// export const getProfile = (token) => {
+//   return axios.get(`https://e-field.vercel.app/api/users`, {
+//     headers: {
+//       'x-access-token': token,
+//     },
+//   });
+// };
 
 export const getFieldUserId = (token, search) => {
   return axios.get(`https://e-field.vercel.app/api/field/detail/owner?name=${search}`, {

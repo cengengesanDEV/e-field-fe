@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Outlet, Navigate } from "react-router-dom";
-import { getProfile } from "../utils/Axios";
+import { API } from "../utils/Axios";
 import authAction from "../redux/actions/auth";
 
 export function PrivateRoute() {
@@ -9,7 +9,7 @@ export function PrivateRoute() {
     const dispatch = useDispatch()
     
     const cekToken = useCallback(() => {
-        getProfile(token)
+        API.getProfile(token)
         .catch(() => dispatch(authAction.resetReducer()))
     },[])
 

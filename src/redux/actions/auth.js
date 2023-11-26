@@ -1,5 +1,6 @@
 import ACTION_STRING from "./actionStrings";
-import { Logout, changeIdentity, getProfile, loginAuth, patchProfile } from "../../utils/Axios";
+// import { Logout, changeIdentity, getProfile, loginAuth, patchProfile } from "../../utils/Axios";
+import { Logout, changeIdentity, API, loginAuth, patchProfile } from "../../utils/Axios";
 
 // Action Login
 const loginPending = () => ({
@@ -54,7 +55,7 @@ const userIDThunk = (token) => {
     try {
       await dispatch(profilePending());
       console.log(token);
-      const result = await getProfile(token);
+      const result = await API.getProfile(token);
       console.log("resultProfile", result)
       dispatch(profileFulfilled(result.data.data[0]));
     } catch (error) {
