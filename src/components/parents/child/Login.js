@@ -57,6 +57,11 @@ function Login() {
                 required: true,
                 message: "Please input your email!",
               },
+              {
+                pattern:
+                /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/,
+                message: "Please Input Your Email Correctly",
+              },
             ]}
           >
             <Input />
