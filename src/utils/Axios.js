@@ -2,6 +2,8 @@ import axios from 'axios';
 import { ApiWithAuth } from '../helper/CustomThrowToken';
 
 
+// running Localhost 8080
+// http://localhost:8080
 
 
 
@@ -21,6 +23,7 @@ export const loginAuth = (body) => {
 export const registerAuth = (body) => {
   return axios.post(`https://e-field.vercel.app/api/users`, body);
 };
+
 
 // export const getProfile = (token) => {
 //   return axios.get(`https://e-field.vercel.app/api/users`, {
@@ -145,14 +148,23 @@ export const changeStatusPaymentOwner = (token,id,body) => {
 };
 
 
-// body
-// play_date
-// start_play
-// end_play
 export const editPaymentSchedule = (token,id,body) => {
   return axios.patch(`https://e-field.vercel.app/api/payment/owner/booking/${id}`, body, {
     headers: {
       'x-access-token': token,
     },
   });
+};
+
+
+export const sendEmail = (email) => {
+  return axios.patch(`https://e-field.vercel.app/api/users/forgot/${email}`, {});
+};
+
+export const forgotPassword = (body) => {
+  return axios.patch(`https://e-field.vercel.app/api/users/changePwd`, body);
+};
+
+export const verifyEmail = (pin) => {
+  return axios.patch(`https://e-field.vercel.app/api/users/validate/${pin}`, {});
 };

@@ -4,10 +4,12 @@ import { registerAuth } from "../../../utils/Axios";
 import { useDispatch } from "react-redux";
 
 function Register({ changeTab = () => {} }) {
+
+  const [loading, setLoading] = useState(false)
   // handle jika form semua field terisi
   const onFinish = async (values) => {
     try {
-      // console.log("LoginSubmit", values);
+      setLoading(true)
       const body = {
         role: values.role,
         phone_number: values.phoneNumber,
@@ -19,9 +21,11 @@ function Register({ changeTab = () => {} }) {
       message.success(result.data.msg);
       changeTab("Login");
       window.scrollTo(0, 0);
+      setLoading(false)
     } catch (error) {
       console.log(error);
       message.info(error.response.data.msg);
+      setLoading(false)
     }
   };
 
@@ -134,10 +138,6 @@ function Register({ changeTab = () => {} }) {
               required: true,
               message: "Please input your password!",
             },
-            {
-              min: 6,
-              message: "Password Minimum 6 character",
-            },
           ]}
         >
           <Input.Password />
@@ -149,7 +149,7 @@ function Register({ changeTab = () => {} }) {
             span: 24,
           }}
         >
-          <Button type="primary" htmlType="submit">
+          <Button loading={loading} type="primary" htmlType="submit">
             Submit
           </Button>
         </Form.Item>

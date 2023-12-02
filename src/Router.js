@@ -16,6 +16,8 @@ import { ProtectedAuth } from "./helper/ProtectedAuth";
 import MainLayout from "./components/MainLayout";
 import PaymentOwner from "./pages/Owner/PaymentOwner";
 
+import VerifyEmail from "./helper/VerifyEmail";
+
 // routernya
 const router = createBrowserRouter([
   {
@@ -25,9 +27,9 @@ const router = createBrowserRouter([
         element: <MainLayout />,
         children: [
           { path: "/dashboard", element: <Dashboard /> },
-          { path: "/profile", element: <Profile /> },
-          { path: "/lapangan", element: <Lapangan /> },
+          { path: "/profile", element: <Profile /> },   
           { path: "/editlapangan", element: <EditField /> },
+          { path: "/lapangan", element: <Lapangan /> },
           { path: "/lapangan/:id", element: <PaymentCustomer /> },
           { path: "/historypayment", element: <HistoryCustomer /> },
           { path: "/fields", element: <FieldOwner /> },
@@ -38,8 +40,18 @@ const router = createBrowserRouter([
   },
   {
     element: <ProtectedAuth />,
-    children: [{ path: "/", element: <Home /> }],
+    children: [{
+      element : <MainLayout />,
+      children : [
+        { path: "/", element: <Home /> },
+        { path: "/lapanganview", element: <Lapangan /> },
+        { path: "/lapanganview/:id", element: <PaymentCustomer /> },
+      ]
+    }],
   },
+  {
+    children : [{ path: "/auth/:id", element: <VerifyEmail /> }]
+  }
 ]);
 
 export default router;

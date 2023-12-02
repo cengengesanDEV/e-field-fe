@@ -8,9 +8,11 @@ import sample from "../assets/chair1.jpg";
 import { useNavigate } from "react-router-dom";
 import { BookOutlined, SmileOutlined, SolutionOutlined, UserOutlined } from "@ant-design/icons";
 import { allFieldCustomer } from "../utils/Axios";
+import { useSelector } from "react-redux";
 
 function Lapangan() {
   const navigate = useNavigate();
+  const token = useSelector(state => state.auth.token)
   const [filter, setFilter] = useState({});
   const [data, setData] = useState([])
   const [page, setPage] = useState(1)
@@ -100,23 +102,23 @@ function Lapangan() {
                   filterOption={(input, option) => (option?.label ?? "").toLowerCase().includes(input.toLowerCase())}
                   options={[
                     {
-                      value: "Jakarta Utara",
+                      value: "jakarta utara",
                       label: "Jakarta Utara",
                     },
                     {
-                      value: "Jakarta Selatan",
+                      value: "jakarta selatan",
                       label: "Jakarta Selatan",
                     },
                     {
-                      value: "Jakarta Barat",
+                      value: "jakarta barat",
                       label: "Jakarta Barat",
                     },
                     {
-                      value: "Jakarta Timur",
+                      value: "jakarta timur",
                       label: "Jakarta Timur",
                     },
                     {
-                      value: "Jakarta Pusat",
+                      value: "jakarta pusat",
                       label: "Jakarta Pusat",
                     },
                   ]}
@@ -186,7 +188,7 @@ function Lapangan() {
                 <Row>
                   {data.map((value, index) => (
                     <Col span={8} key={index}>
-                      <div className={css.card} style={{ cursor: "pointer" }} onClick={() => navigate(`/lapangan/${value.id}`)}>
+                      <div className={css.card} style={{ cursor: "pointer" }} onClick={() => {token ? navigate(`/lapangan/${value.id}`) : navigate(`/lapanganview/${value.id}`)}  }>
                         <div className="d-flex flex-column">
                           <img src={value.image_cover} alt="" width={"300px"} height={"200px"} style={{ backgroundSize: "cover" }} />
                         </div>

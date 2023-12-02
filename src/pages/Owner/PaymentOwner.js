@@ -1,4 +1,4 @@
-import { Table, Typography, Space, Tag, Select, Input, message, Button, Dropdown, Modal, Row, Col, DatePicker, Descriptions } from "antd";
+import { Table, Typography, Space, Tag, Select, Input, message, Button, Dropdown, Modal, Row, Col, DatePicker, Descriptions, Empty } from "antd";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { changeStatusPaymentOwner, editPaymentSchedule, getDetailField, getHistoryOwner } from "../../utils/Axios";
@@ -6,6 +6,7 @@ import moment from "moment/moment";
 import priceFormatter from "../../utils/priceFormatter";
 import locale from "antd/es/date-picker/locale/id_ID";
 import dayjs from "dayjs";
+import { PlusCircleOutlined, FundViewOutlined, CloseCircleOutlined, CheckCircleOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 
 function PaymentOwner() {
   
@@ -23,6 +24,7 @@ function PaymentOwner() {
   const [changeVal, setChangeVal] = useState({})
   const [booking, setBooking] = useState([])
   const [id, setId] = useState(null)
+  const [dataConfirm, setDataConfirm] = useState({})
 
   const token = useSelector(state => state.auth.token)
 
@@ -113,21 +115,32 @@ function PaymentOwner() {
       width: 150,
     },
     {
+      title: "status",
+      dataIndex: "status",
+      key: "12",
+      width: 120,
+      fixed:'right',
+      render : (e) => (
+        <Tag color={e.isDp ? 'error' : "success"}>{e.isDp ? 'down payment' : 'full payment'}</Tag>
+      )
+    },
+    {
       title: "Action",
       dataIndex: "action",
       key: "action",
-      fixed: '12',
-      width:200,
+      fixed: '13',
+      width: 220,
       fixed:'right',
       render : (e) => (
         <Space size={[8, 16]}>
           <Space direction="vertical" size={'small'}>
-              <Button onClick={() => {setShowView(true); setImage(e.image_payment)}} style={{backgroundColor:'#ffb73f', width:'100%'}}>View</Button>
-              <Button onClick={() => handleShowChangeSchedule(e)} type="dashed" style={{width:'100%'}} disabled={e.status != 'pending'}>Edit</Button>
+              <Button onClick={() => {setShowView(true); setImage(e.image_payment)}} style={{backgroundColor:'#ffb73f', width:'100%'}} icon={<FundViewOutlined />}>View</Button>
+              {e.status == 'pending' ? <Button onClick={() => handleShowChangeSchedule(e)} type="dashed" style={{width:'100%'}} icon={<EditOutlined />}>Edit</Button> : null}
           </Space>
             <Space direction="vertical" size={'small'}>
-              <Button onClick={() => {setShowConfirm(true); setId(e.id)}} type='primary' style={{ width:'100%'}} disabled={e.status != 'pending' }>Confirm</Button>
-              <Button onClick={() => {setShowCancel(true); setId(e.id)}} type='primary' danger style={{ width:'100%'}} disabled={e.status != 'pending' }>Cancel</Button>
+              {e.status == 'pending' ? <Button onClick={() => {setShowConfirm(true); setId(e.id); setDataConfirm(e)}} type='primary' style={{ width:'100%'}} icon={<CheckCircleOutlined />}>Confirm</Button> : null}
+              {e.status == 'pending' ? <Button onClick={() => {setShowCancel(true); setId(e.id)}} type='primary' danger style={{ width:'100%'}} icon={<CloseCircleOutlined />}>Cancel</Button> : null}
+              
           </Space>
         </Space>
       )
@@ -138,6 +151,7 @@ function PaymentOwner() {
   const handlePaymentStatus = async (value) => {
     await changeStatusPaymentOwner(token, id, {status : value})
     await getPayment()
+    setDataConfirm({})
     setShowConfirm(false)
     setShowCancel(false)
   }
@@ -241,7 +255,7 @@ function PaymentOwner() {
             />
           </div>
 
-          <Table 
+          {field.length > 0 ? <Table 
             scroll={{
               x: 1500,
               y: 300,
@@ -260,9 +274,10 @@ function PaymentOwner() {
               scheduleDate : moment(e.play_date).format('DD-MM-YYYY'),
               type : e.type,
               totalPayment : priceFormatter(e.total_payment),
-              action : e
+              action : e,
+              status : e
             }))} 
-          />
+          /> : <Empty />}
         </div>
       </div>
 
@@ -273,7 +288,10 @@ function PaymentOwner() {
         onOk={() => {handlePaymentStatus('success')}} 
         onCancel={() => setShowConfirm(false)}
       >
-        <p>Are u sure want to confirm this payment ?</p>
+        <p>{`Price = ${priceFormatter(dataConfirm.total_payment)}`}</p>
+        <p>{`Payment price = ${priceFormatter(dataConfirm.total_dp)}`}</p>
+        <p>{`Total Payment = ${priceFormatter(dataConfirm.total_payment - dataConfirm.total_dp)} (${dataConfirm.isDp ? 'down payment' : 'full payemnt'})`}</p>
+        <p style={{fontWeight : 'bold'}}>Are u sure want to confirm this payment ?</p>
       </Modal>
 
       {/* Modal Cancel */}

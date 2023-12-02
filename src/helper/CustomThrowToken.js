@@ -10,7 +10,7 @@ const ApiWithAuth = axios.create({baseURL : baseUrl})
 // sebelum request dikirim
 ApiWithAuth.interceptors.request.use(
     (config) => {
-        console.log("asdqweqwe",config)
+        // console.log("asdqweqwe",config)
         const token = store.getState().auth.token
         config.data = {...config.data};
         config.headers['x-access-token'] = token

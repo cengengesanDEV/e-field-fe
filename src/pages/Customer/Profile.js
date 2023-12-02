@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Navbar from "../../components/parents/Navbar";
 import Footer from "../../components/parents/Footer";
 import css from "../../styles/ProfileCustome.module.css";
-import { Button, Col, Input, Modal, Row, Select, Steps, Upload, message } from "antd";
+import { Button, Col, Input, Modal, Row, Select, Skeleton, Steps, Upload, message } from "antd";
 import Picture from "../../assets/chair1.jpg";
 import Picture2 from "../../assets/chair.jpg";
 import { CloudUploadOutlined, EditOutlined, FormOutlined, KeyOutlined, RadiusBottomrightOutlined, SmileOutlined, SolutionOutlined, UserOutlined } from "@ant-design/icons";
@@ -25,6 +25,9 @@ function Profile() {
   const [bank, setBank] = useState({})
   const [valPassword, setValPassword] = useState({})
   const [ktp, setKtp] = useState(null)
+  const [loadPassword, setLoadPassword] = useState(false)
+  const [loadEdit, setLoadEdit] = useState(false)
+  const [loadImages, setLoadImages] = useState(false)
 
   const handleViewProfile = () => {
     setViewProfile(!viewProfile);
@@ -36,18 +39,19 @@ function Profile() {
   };
 
   const handleEditProfile = async () => {
-    // hit API edit post
     try {
-        let formData = new FormData()
-        Object.keys(val).forEach((key) => {
-           if(val[key]) formData.append(key, val[key])
-        });
-       const result = await dispatch(authAction.editProfile(token, formData))
-      //  setVal(result) // dikembalikan state nya berdasarkan store di redux
-       message.success('berhasil')
-       setEditProfile(false)
+      setLoadEdit(true)
+      let formData = new FormData()
+      Object.keys(val).forEach((key) => {
+        if(val[key]) formData.append(key, val[key])
+      });
+      const result = await dispatch(authAction.editProfile(token, formData))
+      message.success('Success edit profile')
+      setEditProfile(false)
+      setLoadEdit(false)
     } catch (err) {
       message.error('Failed Load Data')
+      setLoadEdit(false)
     }
   };
 
@@ -65,12 +69,15 @@ function Profile() {
   
   const handleEditPassword = async () => {
     try {
+      setLoadPassword(true)
       await changePassword(token,valPassword)
       setValPassword({})
       setEditPassword(false)
       message.success("success edit password")
+      setLoadPassword(false)
     } catch (error) {
       message.info(error.response.data.msg)
+      setLoadPassword(false)
     }
   };
 
@@ -91,16 +98,23 @@ function Profile() {
     }
   }
 
-  const handleChangeImageIdentity = (file, fileList) => {
-    if (file.type == "image/jpeg" || file.type == "image/png" || file.type == "image/PNG" || file.type == "image/JPEG" || file.type == "image/jpg" || file.type == "image/JPG") {
-      console.log("isifile", file)
-      let body = new FormData()
-      if(file) body.append('image_identity', file)
-      dispatch(authAction.changeKTP(token, body))
-      message.success('success upload image identity')
-      return 
-    } else {
-      message.info("Format can`t accept please insert picture again");
+  const handleChangeImageIdentity = async (file, fileList) => {
+    try {
+        setLoadImages(true)
+        if (file.type == "image/jpeg" || file.type == "image/png" || file.type == "image/PNG" || file.type == "image/JPEG" || file.type == "image/jpg" || file.type == "image/JPG") {
+        let body = new FormData()
+        if(file) body.append('image_identity', file)
+        message.info('please wait to upload image')
+        await dispatch(authAction.changeKTP(token, body))
+        message.success('success upload image identity')
+        setLoadImages(false)
+        return
+      } else {
+        message.info("Format can`t accept please insert picture again");
+      }
+    } catch (error) {
+      setLoadImages(false)
+      console.log("error")
     }
   }
   // console.log("first", val);
@@ -118,7 +132,9 @@ function Profile() {
                 <div className={`${css.card__left}`}>
                   <TitleName label="P R O F I L E" size={3} />
                   <hr style={{ backgroundColor: "black", width: "100%" }} />
-                  <img src={profile.image} width={400} height={250} alt="" style={{ borderRadius: "20px", marginBottom: "40px", boxShadow: "5px 5px 20px 2px #262626" }} />
+                  <Skeleton loading={loadEdit} active>
+                    <img src={profile.image} width={400} height={250} alt="" style={{ borderRadius: "20px", marginBottom: "40px", boxShadow: "5px 5px 20px 2px #262626" }} />
+                  </Skeleton>
                   <div className="d-flex flex-column align-items-start w-100">
                     <Button onClick={handleViewProfile} icon={<RadiusBottomrightOutlined />} style={{ fontFamily: "Tilt Neon" }}>
                       View Profile
@@ -185,9 +201,11 @@ function Profile() {
                   <hr style={{ backgroundColor: "black", width: "100%" }} />
                 </div>
                 <div className={`${css.card__right}`}>
-                  <img src={profile.image_identity} width={240} height={190} alt="" style={{ borderRadius: "20px", boxShadow: "5px 5px 20px 2px #262626" }} />
+                  <Skeleton loading={loadImages} active>
+                    <img src={profile.image_identity} width={240} height={190} alt="" style={{ borderRadius: "20px", boxShadow: "5px 5px 20px 2px #262626" }} />
+                  </Skeleton>
                   <div className="d-flex flex-column justify-content-end w-100 gap-2 ms-4">
-                    <Upload beforeUpload={profile.image_identity} showUploadList={false} onChange={({ file, fileList }) => handleChangeImageIdentity(file, fileList)} maxCount={1}>
+                    <Upload beforeUpload={profile.image_identity} showUploadList={false} accept='image/png, image/jpg, image/jpeg, image/webp' onChange={({ file, fileList }) => handleChangeImageIdentity(file, fileList)} maxCount={1}>
                       <Button type="primary" danger style={{ fontFamily: "Tilt Neon" }} icon={<CloudUploadOutlined />}>
                         Upload Identity
                       </Button>
@@ -259,7 +277,7 @@ function Profile() {
       </div>
 
       {/* Modal Edit Data Profile */}
-      <Modal title="Edit Profile" open={editProfile} onOk={handleEditProfile} onCancel={() => {setEditProfile(false); setVal(profile)}}>
+      <Modal title="Edit Profile" open={editProfile} confirmLoading={loadEdit} onOk={handleEditProfile} onCancel={() => {setEditProfile(false); setVal(profile)}}>
         <Row style={{ width: "100%" }}>
           <Col span={7} style={{ fontFamily: "Tilt Neon" }}>
             <p>Name</p>
@@ -287,12 +305,48 @@ function Profile() {
             <Input value={val.full_name} onChange={(e) => setVal({ ...val, full_name: e.target.value })} />
             <Input value={val.no_identity} onChange={(e) => setVal({ ...val, no_identity: e.target.value })} style={{ marginTop: "10px" }} />
             <Input value={val.email} onChange={(e) => setVal({ ...val, email: e.target.value })} style={{ marginTop: "10px" }} disabled />
-            <Input value={val.location} onChange={(e) => setVal({ ...val, location: e.target.value })} style={{ marginTop: "10px" }} />
+            {/* <Input value={val.location} onChange={(e) => setVal({ ...val, location: e.target.value })} style={{ marginTop: "10px" }} /> */}
+            <Select
+              showSearch
+              placeholder='Select Location'
+              value={val.location}
+              onChange={(e) => setVal({ ...val, location: e || ''})}
+              allowClear={true}
+              style={{ marginTop: "10px", width:'100%' }}
+              options={[
+                {
+                  value: 'jakarta utara',
+                  label: 'Jakarta Utara',
+                },
+                {
+                  value: 'jakarta selatan',
+                  label: 'Jakarta Selatan',
+                },
+                {
+                  value: 'jakarta barat',
+                  label: 'Jakarta Barat',
+                },
+                {
+                  value: 'jakarta timur',
+                  label: 'Jakarta Timur',
+                },
+                {
+                  value: 'jakarta pusat',
+                  label: 'Jakarta Pusat',
+                },
+              ]}
+            />
             <Input value={val.address} onChange={(e) => setVal({ ...val, address: e.target.value })} style={{ marginTop: "10px" }} />
             <Input value={val.phone_number} onChange={(e) => setVal({ ...val, phone_number: e.target.value })} style={{ marginTop: "10px" }} disabled />
             <Input value={val.gender} onChange={(e) => setVal({ ...val, gender: e.target.value })} style={{ marginTop: "10px" }} />
             <Input value={val.role} onChange={(e) => setVal({ ...val, role: e.target.value })} style={{ marginTop: "10px" }} disabled />
-            <Upload beforeUpload={profile.image} showUploadList={listImage} onChange={({ file, fileList }) => handleImageProfile(file, fileList)} maxCount={1}>
+            <Upload beforeUpload={profile.image} showUploadList={listImage} accept='image/png, image/jpg, image/jpeg' listType="picture" defaultFileList={[
+                              {
+                                name: profile.image,
+                                status: 'done',
+                                url: profile.image
+                              },
+                            ]} onChange={({ file, fileList }) => handleImageProfile(file, fileList)} maxCount={1}>
               <Button style={{ marginTop: "10px" }} type="primary">
                 Upload Profil
               </Button>
@@ -302,7 +356,7 @@ function Profile() {
       </Modal>
 
       {/* Modal Edit Password */}
-      <Modal title="Edit Password" open={editPassword} onOk={handleEditPassword} onCancel={() => {setEditPassword(false); setValPassword({})}}>
+      <Modal title="Edit Password" confirmLoading={loadPassword} open={editPassword} onOk={handleEditPassword} onCancel={() => {setEditPassword(false); setValPassword({})}}>
         <Row style={{ width: "100%" }}>
           <Col span={7} style={{ fontFamily: "Tilt Neon" }}>
             <p>Old Password</p>

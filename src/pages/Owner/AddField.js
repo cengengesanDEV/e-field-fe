@@ -26,6 +26,7 @@ import {
   getFieldUserId,
 } from '../../utils/Axios';
 import { useNavigate } from 'react-router-dom';
+import { CloudUploadOutlined, PlusCircleOutlined, FundViewOutlined, CloseCircleOutlined, CheckCircleOutlined} from "@ant-design/icons";
 
 function LapanganOwner() {
   const { Title } = Typography;
@@ -41,6 +42,7 @@ function LapanganOwner() {
   const [val, setVal] = useState({});
   const [clock, setClock] = useState(temp);
   const [multi, setMulti] = useState([]);
+  const [loading, setLoading] = useState(false)
 
   const onChange = (e, flag) => {
     if (flag === 'type') {
@@ -75,13 +77,15 @@ function LapanganOwner() {
 
   const handleAddField = async () => {
     try {
-      console.log('payloadAdd', val);
-      // validasi belum
+      if(!profile.bank_name || !profile.no_identity || !profile.image_identity || !profile.no_rekening) return message.info('Can`t add field you must input form profile first')
+      setLoading(true)
+      console.log("payloadAddField", val)
+      if(!val.address || !val.city || !val.description || !val.end_hour || !val.image_cover || !val.images || !val.name || !val.price || !val.start_hour || !val.type) return (message.info('data can`t empty'), setLoading(false))
       let formData = new FormData();
       Object.keys(val).forEach((key) => {
         if (key === 'images') {
           val.images.forEach((image) => {
-            if (image) formData.append(`images`, image.originFileObj);
+            if (image.originFileObj) formData.append(`images`, image.originFileObj);
           });
         } else {
           if (val[key]) formData.append(key, val[key]);
@@ -90,8 +94,10 @@ function LapanganOwner() {
       await addFieldOwner(token, formData);
       setVal({ images: null, image_cover: null });
       message.success('success add field');
+      navigate('/editlapangan')
     } catch (error) {
       message.info(error.response.data.msg);
+      setLoading(false)
     }
   };
 
@@ -113,8 +119,8 @@ function LapanganOwner() {
   return (
     <>
       <div className='p-4'>
-        <Button type='primary'>Add Field</Button>
-        <Button type='ghost' danger onClick={() => navigate('/editlapangan')}>
+        <Button type='primary' icon={<PlusCircleOutlined />} style={{fontFamily: 'Tilt Neon'}}>Add Field</Button>
+        <Button type='ghost' icon={<FundViewOutlined />} style={{fontFamily: 'Tilt Neon'}} danger onClick={() => navigate('/editlapangan')}>
           View Field
         </Button>
         <hr />
@@ -210,11 +216,23 @@ function LapanganOwner() {
               </div>
               <div className='py-2'>
                 <Title level={5}>Description</Title>
-                <Input
+                {/* <Input
                   name='description'
                   value={val.description}
                   onChange={(e) => onChange(e)}
                   placeholder='Description Booking'
+                /> */}
+                <Input.TextArea
+                  showCount
+                  maxLength={500}
+                  name='description'
+                  value={val.description}
+                  onChange={(e) => onChange(e)}
+                  placeholder='Description Booking'
+                  // style={{
+                  //   height: 120,
+                  //   resize: 'none',
+                  // }}
                 />
               </div>
               <div className='py-2'>
@@ -246,7 +264,7 @@ function LapanganOwner() {
               <div className='py-2'>
                 <Title level={5}>Location</Title>
                 <Select
-                  style={{ width: '100%' }}
+                  style={{ width: '100%'}}
                   showSearch
                   placeholder='Select Location Soccer Fields'
                   optionFilterProp='children'
@@ -262,23 +280,23 @@ function LapanganOwner() {
                   options={[
                     {
                       value: 'jakarta utara',
-                      label: 'jakarta utara',
+                      label: 'Jakarta Utara',
                     },
                     {
                       value: 'jakarta selatan',
-                      label: 'jakarta selatan',
+                      label: 'Jakarta Selatan',
                     },
                     {
                       value: 'jakarta barat',
-                      label: 'jakarta barat',
+                      label: 'Jakarta Barat',
                     },
                     {
                       value: 'jakarta timur',
-                      label: 'jakarta timur',
+                      label: 'Jakarta Timur',
                     },
                     {
                       value: 'jakarta pusat',
-                      label: 'jakarta pusat',
+                      label: 'Jakarta Pusat',
                     },
                   ]}
                 />
@@ -312,11 +330,13 @@ function LapanganOwner() {
                   maxCount={1}
                   showUploadList={true}
                   beforeUpload={true}
+                  listType="picture"
                   onChange={({ file }) => onChangeImageSingle(file, true)}
                 >
                   <Button
                     className='flex gap-2 items-center'
                     style={{ backgroundColor: '#ffb73f' }}
+                    icon={<CloudUploadOutlined />}
                   >
                     Upload
                   </Button>
@@ -330,11 +350,13 @@ function LapanganOwner() {
                   multiple
                   showUploadList={true}
                   beforeUpload={true}
+                  listType="picture"
                   onChange={({ fileList }) => onChangeImageSingle(fileList)}
                 >
                   <Button
                     className='flex gap-2 items-center'
                     style={{ backgroundColor: '#ffb73f' }}
+                    icon={<CloudUploadOutlined />}
                   >
                     Upload
                   </Button>
@@ -378,6 +400,7 @@ function LapanganOwner() {
             className='my-3'
             style={{ width: '200px', marginRight: '30px' }}
             onClick={() => setVal({})}
+            icon={<CloseCircleOutlined />}
             danger
           >
             Reset
@@ -387,6 +410,8 @@ function LapanganOwner() {
             className='my-3'
             style={{ width: '200px' }}
             onClick={handleAddField}
+            loading={loading}
+            icon={<CheckCircleOutlined />}
           >
             Save
           </Button>

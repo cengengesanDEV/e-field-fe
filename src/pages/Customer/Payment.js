@@ -12,6 +12,7 @@ import {
   DatePicker,
   Upload,
   message,
+  Space,
 } from "antd";
 import TitleName from "../../components/childern/TitleName";
 import css from "../../styles/Payment.module.css";
@@ -41,6 +42,9 @@ function Payment() {
   const [fieldData, setFieldData] = useState(null);
   const [hour, setHour] = useState([])
   const [showimage, setShowimage] = useState(true)
+  const [price, setPrice] = useState(0)
+  const [loading, setLoading] = useState(false)
+  const [step, setStep] = useState(2)
   const params = useParams();
 
 
@@ -54,7 +58,6 @@ function Payment() {
   };
 
   const onChangeDate = (date, dateString) => {
-    console.log(date, dateString);
     setDate(dateString);
   };
 
@@ -97,12 +100,14 @@ function Payment() {
 
   
   const postPayment = () => {
-    // console.log("PayloadPayment", username, moment(date).format('DD-MM-YYYY'), bookingTime, bukti)
+    if(!token) return( message.info('please login first'), navigate('/'))
     if(!username) return message.info('please insert username booking !')
     if(!bookingTime.clockIn || !bookingTime.clockOut) return message.info('please choose time booking !')
     if(!bukti) return message.info('please uploading file transfer !')
+    if(!price) return message.info('please insert payment price')
     if(!profile.bank_name || !profile.no_rekening) return (message.info('please insert number rekening first'), navigate('/profile'))
-
+    
+    setLoading(true)
     let body = {
       image : bukti,
       field_id : params.id,
@@ -113,7 +118,8 @@ function Payment() {
       play_date : moment().format('YYYY-MM-DD'),
       username : username,
       bank_name : profile.bank_name,
-      no_rekening : profile.no_rekening
+      no_rekening : profile.no_rekening,
+      total_dp : price
     }
 
     const formData = new FormData()
@@ -123,6 +129,9 @@ function Payment() {
 
     postPaymentCustomer(token,formData)
     .then((res) => {
+      window.scrollTo(0, 0);
+      message.success(res.data.msg)
+      setStep(3)
       setBookingTime({
         clockIn: null,
         clockOut: null,
@@ -130,13 +139,16 @@ function Payment() {
       setUsername(null)
       setBukti(null)
       setDate(new Date())
-      console.log("response", res.data.data)
-      message.success(res.data.msg)
-      navigate('/historypayment')
+      // console.log("response", res.data.data)
+      
+      setTimeout(() => {
+        navigate('/historypayment')
+      }, 3000);
     })
     .catch((error) => {
       message.info('server maintanance')
     })
+    .finally(() => setLoading(false))
   }
 
 
@@ -148,7 +160,7 @@ function Payment() {
           {/* Kiri */}
           <Col span={5}>
             <div className="p-4">
-              <TitleName size={4} label="Information" />
+              <TitleName size={4} label="Descriptions" />
               <hr />
               <div
                 style={{
@@ -174,7 +186,7 @@ function Payment() {
                 <hr style={{ color: "#69b1ff" }} />
                 <Steps
                   size="small"
-                  current={1}
+                  current={step}
                   items={[
                     {
                       title: "Booking soccer fields",
@@ -242,13 +254,22 @@ function Payment() {
                   </Col>
                   <Col span={12} style={{ borderLeft: "1px solid grey" }}>
                     <TitleName size={4} label="Playing schedule" />
-                    <DatePicker
-                      onChange={onChangeDate}
-                      value={dayjs(date)}
-                      locale={locale}
-                      allowClear={false}
-                    />
                     <hr style={{ color: "#69b1ff" }} />
+                    <Space className="pb-3">
+                      <TitleName size={5} label="Select Date : " />
+                      <DatePicker
+                        onChange={onChangeDate}
+                        value={dayjs(date)}
+                        locale={locale}
+                        allowClear={false}
+                        disabledDate={(current) => {
+                          const date = new Date();
+                          date.setDate(date.getDate() - 1);
+                          return current && current < dayjs(date).endOf('day');
+                        }}  
+                      />
+                    </Space>
+                    
                     <div className="d-flex flex-row flex-wrap w-100 gap-3">
                       
                       {/* Button Booking */}
@@ -256,7 +277,14 @@ function Payment() {
                           <Row className="d-flex flex-row flex-wrap">
                             <Col span={24} className="d-flex flex-column align-items-center gap-2" style={{backgroundColor:'#eaeaea', padding:'15px', borderRadius: "20px", }}>
                               <p style={{ fontFamily: "Tilt Neon", fontWeight:'bolder' }}>{`${e.start <= 9 ? 0 : ''}${e.start}:00 - ${e.end  <= 9 ? 0 : ''}${e.end  == 24 ? '00' : e.end}:00`}</p>
-                              <Button onClick={() => onChangeBooking(e)} type='primary' disabled={e.isBooked}>{e.isBooked ? 'Booked' : 'Ready'}</Button>
+                              <Button 
+                                onClick={() => onChangeBooking(e)} 
+                                type='primary' 
+                                danger={moment().days >= e.start ? true : false } 
+                                disabled={e.isBooked || moment().format('YYYY-MM-DD') > moment(date).format('YYYY-MM-DD') || moment().days >= e.start ? true : false}
+                              >
+                                  {e.isBooked ? 'Booked' : moment().days >= e.start ? "Late" : 'Ready'}
+                              </Button>
                             </Col>
                           </Row>
                         ))}
@@ -334,12 +362,29 @@ function Payment() {
                         <p>BCA 4104021123 a/n Muhammad farisan H</p>
                       </div>
                       <div className="py-2">
-                        <Title level={5}>Total Payment</Title>
+                        <Title level={5}>Price</Title>
                         <p>{costing(fieldData?.field?.price || 0)}</p>
                       </div>
                       <div className="py-2">
+                        <Title level={5}>Payment price</Title>
+                        <Input
+                          name='price'
+                          value={costing(price)}
+                          onChange={(e) => {
+                            const values = e.target.value;
+                            const parser = values.replace(/[^0-9]/g, '');
+                            if(fieldData?.field?.price > parser){
+                              setPrice(parser);
+                            }else{
+                              setPrice(fieldData?.field?.price)
+                            }
+                          }}
+                          placeholder='price'
+                        />
+                      </div>
+                      <div className="py-2">
                         <Title level={5}>Upload Payment</Title>
-                        <Upload beforeUpload={true} value={bukti} maxCount={1} showUploadList={showimage} onChange={({file}) => onChangeImage(file)}>
+                        <Upload beforeUpload={true} listType="picture" accept='image/png, image/jpg, image/jpeg, image/webp' maxCount={1} showUploadList={showimage} onChange={({file}) => onChangeImage(file)}>
                           <Button type="primary" style={{ width: "100%" }}>
                             upload
                           </Button>
@@ -348,7 +393,7 @@ function Payment() {
                     </Card>
                   </Col>
                 </Row>
-                <Button type="primary" onClick={postPayment} >Payment</Button>
+                <Button loading={loading} type="primary" onClick={postPayment} >Payment</Button>
               </div>
             </div>
           </Col>

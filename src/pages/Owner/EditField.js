@@ -8,6 +8,7 @@ import {
   Modal,
   Row,
   Select,
+  Skeleton,
   Space,
   Table,
   Tag,
@@ -25,6 +26,7 @@ import {
 } from '../../utils/Axios';
 import { useSelector } from 'react-redux';
 import priceFormatter from '../../utils/priceFormatter';
+import { PlusCircleOutlined, FundViewOutlined, CloseCircleOutlined, CheckCircleOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 
 const _ = require('lodash');
 
@@ -96,15 +98,18 @@ function EditField() {
   const [isEditMode, setIsEditMode] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [search, setSearch] = useState('')
+  const [loadingApi, setLoadingApi] = useState(false)
 
   const toggleModalVisibility = useCallback((key) => {
     setModalVisibility((state) => ({ ...state, [key]: !state[key] }));
   }, []);
 
   const getField = () => {
+    setLoadingApi(true)
     getFieldUserId(token, search)
       .then((res) => setField(res.data.data))
-      .catch((err) => console.log(err));
+      .catch((err) => console.log(err))
+      .finally(() => setLoadingApi(false))
   };
 
   const onChange = (e, flag) => {
@@ -197,6 +202,7 @@ function EditField() {
         setIsSaving(false);
         message.success('Edit Field Success');
         handleReset();
+        getField()
       } catch (error) {
         message.info(error.response.data.msg);
         setIsSaving(false);
@@ -228,13 +234,15 @@ function EditField() {
   useEffect(() => {
     getField();
   }, [search]);
+
+
   return (
     <>
       <div className='p-4'>
-        <Button type='ghost' onClick={() => navigate('/fields')}>
+        <Button type='ghost' icon={<PlusCircleOutlined />} style={{fontFamily: 'Tilt Neon'}} onClick={() => navigate('/fields')}>
           Add Field
         </Button>
-        <Button type='primary'>
+        <Button type='primary' icon={<FundViewOutlined />} style={{fontFamily: 'Tilt Neon'}}>
           {isEditMode ? 'Edit Field' : 'View Field'}
         </Button>
 
@@ -445,10 +453,12 @@ function EditField() {
                         maxCount={1}
                         showUploadList={true}
                         beforeUpload={true}
+                        listType="picture"
                         defaultFileList={[
                           {
                             name: val.image_cover,
                             status: 'done',
+                            url: val.image_cover
                           },
                         ]}
                         onChange={({ file }) => onChangeImageCover(file, true)}
@@ -469,11 +479,13 @@ function EditField() {
                           <Upload
                             disabled={!isEditMode}
                             key={idx}
+                            listType="picture"
                             accept='image/png, image/jpg, image/jpeg, image/webp'
                             defaultFileList={[
                               {
                                 name: image.image,
                                 status: 'done',
+                                url: image.image
                               },
                             ]}
                             maxCount={1}
@@ -485,7 +497,7 @@ function EditField() {
                             }
                           >
                             <Button
-                              className='flex gap-2 items-center'
+                              className='flex gap-2 items-center my-3'
                               disabled={!isEditMode}
                               style={{ backgroundColor: '#ffb73f' }}
                             >
@@ -536,6 +548,7 @@ function EditField() {
                   className='my-3'
                   style={{ width: '200px' }}
                   onClick={handleReset}
+                  icon={<CloseCircleOutlined />}
                 >
                   Close
                 </Button>
@@ -546,6 +559,7 @@ function EditField() {
                     style={{ width: '200px' }}
                     disabled={isValueNotChanged}
                     onClick={() => toggleModalVisibility('saveEdit')}
+                    icon={<CheckCircleOutlined />}
                   >
                     Save
                   </Button>
@@ -573,53 +587,58 @@ function EditField() {
               </Col>
             </Row>  
           </div>
-          <Table
-            columns={columns}
-            dataSource={field.map((value, index) => ({
-              key: index + 1,
-              no: index + 1,
-              name: value.name,
-              openClose: `${value.start_hour}:00 - ${value.end_hour}:00`,
-              type: value.type,
-              city: value.city,
-              address: value.address,
-              price: priceFormatter(value?.price || 0),
-              action: (
-                <>
-                  <Button
-                    type='primary'
-                    onClick={() => {
-                      handleOnSelect(value);
-                      setIsEditMode(false);
-                    }}
-                    style={{ marginRight: '10px' }}
-                  >
-                    View
-                  </Button>
-                  <Button
-                    type='primary'
-                    onClick={() => {
-                      handleOnSelect(value);
-                      setIsEditMode(true);
-                    }}
-                    style={{ marginRight: '10px', backgroundColor: '#ffb73f' }}
-                  >
-                    Edit
-                  </Button>
-                  <Button
-                    type='primary'
-                    danger
-                    onClick={() => {
-                      setSelectedId(value.id);
-                      toggleModalVisibility('delete');
-                    }}
-                  >
-                    Delete
-                  </Button>
-                </>
-              ),
-            }))}
-          />
+          <Skeleton active loading={loadingApi}>
+            <Table
+              columns={columns}
+              dataSource={field.map((value, index) => ({
+                key: index + 1,
+                no: index + 1,
+                name: value.name,
+                openClose: `${value.start_hour}:00 - ${value.end_hour}:00`,
+                type: value.type,
+                city: value.city,
+                address: value.address,
+                price: priceFormatter(value?.price || 0),
+                action: (
+                  <>
+                    <Button
+                      type='primary'
+                      onClick={() => {
+                        handleOnSelect(value);
+                        setIsEditMode(false);
+                      }}
+                      style={{ marginRight: '10px' }}
+                      icon={<FundViewOutlined />}
+                    >
+                      View
+                    </Button>
+                    <Button
+                      type='primary'
+                      icon={<EditOutlined />}
+                      onClick={() => {
+                        handleOnSelect(value);
+                        setIsEditMode(true);
+                      }}
+                      style={{ marginRight: '10px', backgroundColor: '#ffb73f' }}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      type='primary'
+                      danger
+                      icon={<DeleteOutlined />}
+                      onClick={() => {
+                        setSelectedId(value.id);
+                        toggleModalVisibility('delete');
+                      }}
+                    >
+                      Delete
+                    </Button>
+                  </>
+                ),
+              }))}
+            />
+          </Skeleton>
         </div>
         <Modal
           title='Apakah anda yakin ingin menyimpan perubahan?'

@@ -1,6 +1,6 @@
-import { Button, Col, Collapse, Empty, Row, Select, Skeleton, Typography, message } from "antd";
+import { Button, Col, Collapse, Empty, Modal, Row, Select, Skeleton, Space, Typography, message } from "antd";
 import React, { useEffect, useState } from "react";
-import { getHistoryCustomer } from "../../utils/Axios";
+import { changeStatusPaymentOwner, getHistoryCustomer } from "../../utils/Axios";
 import { useSelector } from "react-redux";
 import moment from "moment/moment";
 
@@ -11,7 +11,10 @@ function History() {
   const [status, setStatus] = useState("pending");
   const [collapse, setCollapse] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [loadCancel, setLoadCancel] = useState(false)
   const [data, setData] = useState([]);
+  const [showView, setShowView] = useState(false)
+  const [imagePayment, setImagePayment] = useState(null)
 
   // onChange status di select
   const changeStatus = (key) => {
@@ -42,8 +45,6 @@ function History() {
     try {
       setLoading(true);
       const result = await getHistoryCustomer(token, status);
-      console.log("VALUEES", result.data.data, profile);
-      if(result.data.data.length < 1) return (setLoading(true), message.info('History not found'))
       setData(result.data.data);
       setLoading(false);
     } catch (error) {
@@ -52,6 +53,21 @@ function History() {
       setLoading(false);
     }
   };
+
+  const handlePaymentStatus = async (e) => {
+    // await changeStatusPaymentOwner(token, value)
+    // getHistoryPayment()
+    try {
+      setLoadCancel(true)
+      console.log("easdqwe", e)
+      await changeStatusPaymentOwner(token, e.id, {status : 'cancel'})
+      getHistoryPayment()
+      setLoadCancel(false)
+    } catch (error) {
+      setLoadCancel(false)
+      console.log(error)
+    }
+  }
 
   return (
     <>
@@ -91,7 +107,7 @@ function History() {
           <Collapse defaultActiveKey={["0"]} accordion onChange={(e) => changeTabCollapse(e)}>
             {data?.map((e, i) => (
               <Collapse.Panel
-                header={`${e.name} || ${moment(e.play_date).format("DD-MM-YYYY")}`}
+                header={`${e.name} (${e.isDp ? 'down payment' : 'full payment'}) || ${moment(e.play_date).format("DD-MM-YYYY")}`}
                 key={i}
                 activeKey={"1"}
                 style={{ backgroundColor: "#1677ff", fontFamily: "Tilt Neon", color:'#FFF' }}
@@ -99,8 +115,8 @@ function History() {
                 <Row>
                   <Col span={5} style={{ fontFamily: "Tilt Neon" }}>
                     <p>No. Identity</p>
-                    <p>Name Account</p>
-                    <p>Name Booking</p>
+                    <p>Account Name</p>
+                    <p>Booking Name</p>
                     <p>Email</p>
                     <p>Phone Number</p>
                     <p>Gender</p>
@@ -108,10 +124,16 @@ function History() {
                     <p>Address</p>
                     <p>Date Booking</p>
                     <p>Schedule Playing</p>
-                    <p>Total Payment</p>
+                    <p>Price</p>
+                    <p>Payment price</p>
+                    <p>Bank Customer</p>
+                    <p>Bank Owner</p>
                     <p>Status</p>
                   </Col>
                   <Col span={1} style={{ fontFamily: "Tilt Neon" }}>
+                    <p>:</p>
+                    <p>:</p>
+                    <p>:</p>
                     <p>:</p>
                     <p>:</p>
                     <p>:</p>
@@ -137,17 +159,39 @@ function History() {
                     <p>{moment(e?.booking_date).format('DD-MM-YYYY') || "-"}</p>
                     <p>{`${moment(e?.play_date).format('DD-MM-YYYY')}, ${e.start_play <= 9 ? 0 : ''}${e.start_play}:00 - ${e.end_play  <= 9 ? 0 : ''}${e.end_play  == 24 ? '00' : e.end_play}:00`}</p>
                     <p>{costing(e?.total_payment) || "-"}</p>
+                    <p>{costing(e?.total_dp) || "-"}</p>
+                    <p>{`${e.bank_name} - ${e.bank_number}`}</p>
+                    <p>{`${e.owner_bank} - ${e.owner_norek}`}</p>
                     <p>{e?.status || "-"}</p>
                   </Col>
                   <Col span={6} className="d-flex flex-row align-activeKey-center justify-content-end">
-                    {status === 'pending' ? null : <Button type="primary">Bukti Payment</Button>}
+                    <Space >
+                      {status === 'pending' ? <Button type="primary" onClick={() => {setShowView(true); setImagePayment(e.image_payment)}}>Bukti Transfer</Button> : null}
+                      {status === 'pending' ? <Button loading={loadCancel} type="primary" danger onClick={() => handlePaymentStatus(e)}>Cancel Booking</Button> : <Button type="primary">Tanda Booking</Button>}
+                    </Space>
                   </Col>
                 </Row>
               </Collapse.Panel>
             ))}
           </Collapse>
         </Skeleton>
+          {data.length > 0 ? null : <Empty />}
       </div>
+
+      {/* Modal View */}
+      <Modal title="Evidence of transfer" 
+        open={showView}
+        okText={'oke'}
+        closeIcon={false}
+        onOk={() => setShowView(false)}
+        onCancel={() => setShowView(false)}
+      >
+        <hr />
+        <div className="w-100 d-flex justify-content-center">
+          <img src={imagePayment} alt="buktiTransfer" width={350} height={300} />
+        </div>
+        <hr />
+      </Modal>
     </>
   );
 }

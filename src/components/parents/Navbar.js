@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Button, Modal, message } from 'antd';
 import { logout } from '../../utils/Axios';
 import authAction from '../../redux/actions/auth';
+import {CloseCircleOutlined} from "@ant-design/icons";
 
 function Navbar() {
   const profile = useSelector((state) => state.auth.profile);
@@ -136,21 +137,23 @@ function Navbar() {
                 type='primary'
                 danger
                 onClick={() => setIsModalOpen(true)}
+                icon={<i class="fa-solid fa-right-from-bracket"></i>}
               >
                 Logout
               </Button>
             </>
           ) : (
             <>
+              <Link to='/lapanganview' className={css.list}>
+                Fields
+              </Link>
               <p to='#' className={css.Pembatas}>
                 |
               </p>
               <Link to='/' className={css.list}>
                 Login
               </Link>
-              <p to='#' className={css.Pembatas}>
-                |
-              </p>
+              
             </>
           )}
         </div>
@@ -161,10 +164,10 @@ function Navbar() {
           onCancel={() => setIsModalOpen(false)}
           onOk={handleLogout}
           footer={[
-            <Button type='primary' danger onClick={handleLogout}>
+            <Button type='primary' danger onClick={handleLogout} icon={<i class="fa-solid fa-right-from-bracket"></i>}>
               Logout
             </Button>,
-            <Button type='primary' onClick={() => setIsModalOpen(false)}>
+            <Button type='primary' onClick={() => setIsModalOpen(false)} icon={<CloseCircleOutlined />}>
               Cancel
             </Button>,
           ]}
