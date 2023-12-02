@@ -26,7 +26,14 @@ import {
 } from '../../utils/Axios';
 import { useSelector } from 'react-redux';
 import priceFormatter from '../../utils/priceFormatter';
-import { PlusCircleOutlined, FundViewOutlined, CloseCircleOutlined, CheckCircleOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import {
+  PlusCircleOutlined,
+  FundViewOutlined,
+  CloseCircleOutlined,
+  CheckCircleOutlined,
+  EditOutlined,
+  DeleteOutlined,
+} from '@ant-design/icons';
 
 const _ = require('lodash');
 
@@ -97,20 +104,20 @@ function EditField() {
   const [isSaving, setIsSaving] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [search, setSearch] = useState('')
-  const [loadingApi, setLoadingApi] = useState(false)
+  const [search, setSearch] = useState('');
+  const [loadingApi, setLoadingApi] = useState(false);
 
   const toggleModalVisibility = useCallback((key) => {
     setModalVisibility((state) => ({ ...state, [key]: !state[key] }));
   }, []);
 
-  const getField = () => {
-    setLoadingApi(true)
+  const getField = useCallback(() => {
+    setLoadingApi(true);
     getFieldUserId(token, search)
       .then((res) => setField(res.data.data))
       .catch((err) => console.log(err))
-      .finally(() => setLoadingApi(false))
-  };
+      .finally(() => setLoadingApi(false));
+  }, [search, token]);
 
   const onChange = (e, flag) => {
     if (flag === 'type') {
@@ -202,7 +209,7 @@ function EditField() {
         setIsSaving(false);
         message.success('Edit Field Success');
         handleReset();
-        getField()
+        getField();
       } catch (error) {
         message.info(error.response.data.msg);
         setIsSaving(false);
@@ -235,14 +242,22 @@ function EditField() {
     getField();
   }, [search]);
 
-
   return (
     <>
       <div className='p-4'>
-        <Button type='ghost' icon={<PlusCircleOutlined />} style={{fontFamily: 'Tilt Neon'}} onClick={() => navigate('/fields')}>
+        <Button
+          type='ghost'
+          icon={<PlusCircleOutlined />}
+          style={{ fontFamily: 'Tilt Neon' }}
+          onClick={() => navigate('/fields')}
+        >
           Add Field
         </Button>
-        <Button type='primary' icon={<FundViewOutlined />} style={{fontFamily: 'Tilt Neon'}}>
+        <Button
+          type='primary'
+          icon={<FundViewOutlined />}
+          style={{ fontFamily: 'Tilt Neon' }}
+        >
           {isEditMode ? 'Edit Field' : 'View Field'}
         </Button>
 
@@ -453,12 +468,12 @@ function EditField() {
                         maxCount={1}
                         showUploadList={true}
                         beforeUpload={true}
-                        listType="picture"
+                        listType='picture'
                         defaultFileList={[
                           {
                             name: val.image_cover,
                             status: 'done',
-                            url: val.image_cover
+                            url: val.image_cover,
                           },
                         ]}
                         onChange={({ file }) => onChangeImageCover(file, true)}
@@ -479,13 +494,13 @@ function EditField() {
                           <Upload
                             disabled={!isEditMode}
                             key={idx}
-                            listType="picture"
+                            listType='picture'
                             accept='image/png, image/jpg, image/jpeg, image/webp'
                             defaultFileList={[
                               {
                                 name: image.image,
                                 status: 'done',
-                                url: image.image
+                                url: image.image,
                               },
                             ]}
                             maxCount={1}
@@ -579,13 +594,20 @@ function EditField() {
           <Typography.Title level={3} className='mt-2' underline>
             Information Detail Fields
           </Typography.Title>
-          <div className="d-flex flex-row align-items-center mb-3">
+          <div className='d-flex flex-row align-items-center mb-3'>
             <Row>
               <Col span={24}>
-                <p  style={{fontFamily: 'Tilt Neon', paddingBottom:'10px'}}>Search Name :</p>
-                <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder='search name' allowClear />
+                <p style={{ fontFamily: 'Tilt Neon', paddingBottom: '10px' }}>
+                  Search Name :
+                </p>
+                <Input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder='search name'
+                  allowClear
+                />
               </Col>
-            </Row>  
+            </Row>
           </div>
           <Skeleton active loading={loadingApi}>
             <Table
@@ -619,7 +641,10 @@ function EditField() {
                         handleOnSelect(value);
                         setIsEditMode(true);
                       }}
-                      style={{ marginRight: '10px', backgroundColor: '#ffb73f' }}
+                      style={{
+                        marginRight: '10px',
+                        backgroundColor: '#ffb73f',
+                      }}
                     >
                       Edit
                     </Button>

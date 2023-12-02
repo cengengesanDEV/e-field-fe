@@ -1,38 +1,19 @@
-import React, { useCallback, useState } from 'react';
+import React, { Fragment } from 'react';
 import css from './css/Navbar.module.css';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import Logos from '../../assets/JakartaLogo1.png';
-import { useDispatch, useSelector } from 'react-redux';
-import { Button, Modal, message } from 'antd';
-import { logout } from '../../utils/Axios';
-import authAction from '../../redux/actions/auth';
-import {CloseCircleOutlined} from "@ant-design/icons";
+import { useSelector } from 'react-redux';
+import { Button, Modal } from 'antd';
+import { CloseCircleOutlined } from '@ant-design/icons';
+import useNavigationMenu from '../../hooks/useNavigationMenu';
+import { useLogout } from '../../hooks/useLogout';
 
 function Navbar() {
-  const profile = useSelector((state) => state.auth.profile);
   const token = useSelector((state) => state.auth.token);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogout = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      await logout(token);
-      dispatch(authAction.resetReducer());
-      setIsLoading(false);
-      setIsModalOpen(false);
-      message.success('Logout Success');
-      navigate('/', {
-        replace: true,
-      });
-    } catch (error) {
-      message.info(error.response.data.msg);
-      setIsLoading(false);
-      setIsModalOpen(false);
-    }
-  }, [token, dispatch, navigate]);
+  const navigationMenu = useNavigationMenu();
+  const { isLoading, isModalOpen, setIsModalOpen, handleLogout } =
+    useLogout(token);
 
   return (
     <>
@@ -55,79 +36,18 @@ function Navbar() {
       </div>
       <div className={css.headListNavbar}>
         <div className={css.bodyList}>
-          {profile.role == 'customer' ? (
-            <>
-              <Link to='/dashboard' className={css.list}>
-                Dashboard
-              </Link>
-              <p to='#' className={css.Pembatas}>
-                |
-              </p>
-              <Link to='/profile' className={css.list}>
-                Profile
-              </Link>
-              <p to='#' className={css.Pembatas}>
-                |
-              </p>
-              <Link to='/lapangan' className={css.list}>
-                Booking Fields
-              </Link>
-              <p to='#' className={css.Pembatas}>
-                |
-              </p>
-              <Link to='/lapangan' className={css.list}>
-                Payment Field Fields
-              </Link>
-              <p to='#' className={css.Pembatas}>
-                |
-              </p>
-              <Link to='/historypayment' className={css.list}>
-                History Payment
-              </Link>
-            </>
-          ) : profile.role == 'owner' ? (
-            <>
-              <Link to='/dashboard' className={css.list}>
-                Dashboard
-              </Link>
-              <p to='#' className={css.Pembatas}>
-                |
-              </p>
-              <Link to='/profile' className={css.list}>
-                Profile
-              </Link>
-              <p to='#' className={css.Pembatas}>
-                |
-              </p>
-              <Link to='/fields' className={css.list}>
-                Fields
-              </Link>
-              <p to='#' className={css.Pembatas}>
-                |
-              </p>
-              <Link to='/paymentowner' className={css.list}>
-                Payment
-              </Link>
-            </>
-          ) : profile.role == 'admin' ? (
-            <>
-              <Link to='/dashboard' className={css.list}>
-                Dashboard
-              </Link>
-              <p to='#' className={css.Pembatas}>
-                |
-              </p>
-              <Link to='#' className={css.list}>
-                Suspend Account
-              </Link>
-              <p to='#' className={css.Pembatas}>
-                |
-              </p>
-              <Link to='#' className={css.list}>
-                Management
-              </Link>
-            </>
-          ) : null}
+          {!navigationMenu
+            ? null
+            : navigationMenu.map((item, index, array) => (
+                <Fragment key={index}>
+                  {index > 0 && index < array.length && (
+                    <p className={css.Pembatas}>|</p>
+                  )}
+                  <Link to={item.to} className={css.list}>
+                    {item.label}
+                  </Link>
+                </Fragment>
+              ))}
           {token != null ? (
             <>
               <p to='#' className={css.Pembatas}>
@@ -137,7 +57,7 @@ function Navbar() {
                 type='primary'
                 danger
                 onClick={() => setIsModalOpen(true)}
-                icon={<i class="fa-solid fa-right-from-bracket"></i>}
+                icon={<i className='fa-solid fa-right-from-bracket'></i>}
               >
                 Logout
               </Button>
@@ -153,7 +73,6 @@ function Navbar() {
               <Link to='/' className={css.list}>
                 Login
               </Link>
-              
             </>
           )}
         </div>
@@ -162,12 +81,22 @@ function Navbar() {
           title='Apakah anda yakin ingin keluar?'
           open={isModalOpen}
           onCancel={() => setIsModalOpen(false)}
+          confirmLoading={isLoading}
           onOk={handleLogout}
           footer={[
-            <Button type='primary' danger onClick={handleLogout} icon={<i class="fa-solid fa-right-from-bracket"></i>}>
+            <Button
+              type='primary'
+              danger
+              onClick={handleLogout}
+              icon={<i className='fa-solid fa-right-from-bracket'></i>}
+            >
               Logout
             </Button>,
-            <Button type='primary' onClick={() => setIsModalOpen(false)} icon={<CloseCircleOutlined />}>
+            <Button
+              type='primary'
+              onClick={() => setIsModalOpen(false)}
+              icon={<CloseCircleOutlined />}
+            >
               Cancel
             </Button>,
           ]}
