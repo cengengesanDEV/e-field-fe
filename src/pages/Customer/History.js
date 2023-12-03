@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { changeStatusPaymentOwner, getHistoryCustomer } from "../../utils/Axios";
 import { useSelector } from "react-redux";
 import moment from "moment/moment";
+import PdfDownload from '../../pdf/Index'
 
 function History() {
   const token = useSelector((state) => state.auth.token);
@@ -15,6 +16,7 @@ function History() {
   const [data, setData] = useState([]);
   const [showView, setShowView] = useState(false)
   const [imagePayment, setImagePayment] = useState(null)
+  const [dataPdf, setDataPdf] = useState({})
 
   // onChange status di select
   const changeStatus = (key) => {
@@ -166,7 +168,7 @@ function History() {
                   </Col>
                   <Col span={6} className="d-flex flex-row align-activeKey-center justify-content-end">
                     <Space >
-                      {status === 'pending' ? <Button type="primary" onClick={() => {setShowView(true); setImagePayment(e.image_payment)}}>Bukti Transfer</Button> : null}
+                      {status === 'pending' ? <Button type="primary" onClick={() => {setShowView(true); setDataPdf(e)}}>Bukti Transfer</Button> : null}
                       {status === 'pending' ? <Button loading={loadCancel} type="primary" danger onClick={() => handlePaymentStatus(e)}>Cancel Booking</Button> : <Button type="primary">Tanda Booking</Button>}
                     </Space>
                   </Col>
@@ -185,10 +187,11 @@ function History() {
         closeIcon={false}
         onOk={() => setShowView(false)}
         onCancel={() => setShowView(false)}
+        width={1000}
       >
         <hr />
         <div className="w-100 d-flex justify-content-center">
-          <img src={imagePayment} alt="buktiTransfer" width={350} height={300} />
+          <PdfDownload data={dataPdf} />
         </div>
         <hr />
       </Modal>
