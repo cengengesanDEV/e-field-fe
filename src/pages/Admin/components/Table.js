@@ -10,12 +10,26 @@ import {
 } from '@ant-design/icons';
 import { useDebounce } from '@uidotdev/usehooks';
 import { useSuspendUser } from '../hooks/useSuspendUser';
+import { useUnsuspendUser } from '../hooks/useUnsuspendUser';
 
 export default function UserTable({ name }) {
   const [users, setUsers] = useState(null);
   const token = useSelector((state) => state.auth.token);
   const [isLoading, setIsloading] = useState(false);
   const [selectedId, setSelectedId] = useState('');
+  const {
+    isLoading: loadingSuspend,
+    suspendModalVisibility,
+    toggleSuspendModal,
+    suspendUser,
+  } = useSuspendUser();
+  const {
+    isLoading: loadingUnsuspend,
+    unsuspendModalVisibility,
+    toggleUnsusoendModal,
+    handleUnsuspendUser,
+  } = useUnsuspendUser();
+
   const columns = useMemo(
     () => [
       {
@@ -91,7 +105,7 @@ export default function UserTable({ name }) {
                 style={{ backgroundColor: '#ffb73f' }}
                 disabled={
                   record.status_acc === 'pending' ||
-                  record.status_acc === 'suspended'
+                  record.status_acc === 'suspend'
                 }
                 icon={<PoweroffOutlined />}
                 onClick={() => {
@@ -108,6 +122,10 @@ export default function UserTable({ name }) {
                   record.status_acc === 'pending' ||
                   record.status_acc === 'active'
                 }
+                onClick={() => {
+                  setSelectedId(record.id);
+                  toggleUnsusoendModal();
+                }}
                 icon={<ForwardOutlined />}
               />
             </Tooltip>
@@ -123,16 +141,10 @@ export default function UserTable({ name }) {
         ),
       },
     ],
-    []
+    [toggleSuspendModal, toggleUnsusoendModal]
   );
   const searchDebounce = useDebounce(name, 1000);
 
-  const {
-    isLoading: loadingSuspend,
-    suspendModalVisibility,
-    toggleSuspendModal,
-    suspendUser,
-  } = useSuspendUser();
   const getData = useCallback(
     async (name = '') => {
       try {
@@ -173,7 +185,7 @@ export default function UserTable({ name }) {
         title='Apakah anda yakin ingin suspend user ini?'
         open={suspendModalVisibility}
         onCancel={toggleSuspendModal}
-        confirmLoading={isLoading}
+        confirmLoading={loadingSuspend}
         onOk={() => {
           suspendUser(selectedId, token, () => {
             setSelectedId('');
@@ -191,13 +203,49 @@ export default function UserTable({ name }) {
                 getData(name);
               });
             }}
-            icon={<i className='fa-solid fa-right-from-bracket'></i>}
+            icon={<PoweroffOutlined />}
           >
             Suspend
           </Button>,
           <Button
             type='primary'
             onClick={toggleSuspendModal}
+            icon={<CloseCircleOutlined />}
+          >
+            Cancel
+          </Button>,
+        ]}
+      />
+      <Modal
+        width={400}
+        title='Apakah anda yakin ingin mengaktifkan user ini?'
+        open={unsuspendModalVisibility}
+        onCancel={toggleUnsusoendModal}
+        confirmLoading={loadingUnsuspend}
+        onOk={() => {
+          handleUnsuspendUser(selectedId, token, () => {
+            setSelectedId('');
+            getData(name);
+          });
+        }}
+        footer={[
+          <Button
+            type='primary'
+            style={{ backgroundColor: 'green' }}
+            loading={loadingUnsuspend}
+            onClick={() => {
+              handleUnsuspendUser(selectedId, token, () => {
+                setSelectedId('');
+                getData(name);
+              });
+            }}
+            icon={<ForwardOutlined />}
+          >
+            Unsuspend
+          </Button>,
+          <Button
+            type='primary'
+            onClick={toggleUnsusoendModal}
             icon={<CloseCircleOutlined />}
           >
             Cancel

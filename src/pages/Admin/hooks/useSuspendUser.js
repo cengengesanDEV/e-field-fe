@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { susPendUserApi } from '../api/suspendUser';
+import { suspendUserApi } from '../api/suspendUser';
 
 export const useSuspendUser = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -9,7 +9,7 @@ export const useSuspendUser = () => {
     try {
       setIsLoading(true);
 
-      await susPendUserApi(token, id);
+      await suspendUserApi(token, id);
       setIsLoading(false);
       setSuspaendModalVisibility(false);
       if (typeof cb === 'function') cb();
