@@ -1,8 +1,9 @@
 import { Col, Input, Row, Typography } from 'antd';
-import React from 'react';
+import React, { useState } from 'react';
 import UserTable from './components/Table';
 
 export default function SuspendPage() {
+  const [name, setName] = useState('');
   return (
     <div className='p-4'>
       <hr />
@@ -15,10 +16,15 @@ export default function SuspendPage() {
             <p style={{ fontFamily: 'Tilt Neon', paddingBottom: '10px' }}>
               Search User Name :
             </p>
-            <Input placeholder='search name' allowClear />
+            <Input
+              placeholder='search name'
+              allowClear
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
           </Col>
           <Col span={24}>
-            <UserTable />
+            <UserTable name={name} />
           </Col>
         </Row>
       </div>
