@@ -1,6 +1,6 @@
 import { Col, Input, Row, Typography } from 'antd';
 import React, { useState } from 'react';
-import UserTable from './components/Table';
+import UserTable from './components/TableSuspend';
 
 export default function SuspendPage() {
   const [name, setName] = useState('');

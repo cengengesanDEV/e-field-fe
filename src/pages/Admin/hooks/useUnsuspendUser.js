@@ -20,6 +20,7 @@ export const useUnsuspendUser = () => {
       setUnsuspendModalVisibility(false);
     }
   }, []);
+
   const toggleUnsusoendModal = useCallback(() => {
     setUnsuspendModalVisibility((val) => !val);
   }, []);

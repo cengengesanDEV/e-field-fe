@@ -27,7 +27,7 @@ export default function useNavigationMenu() {
       return [
         ...commonItems,
         { to: '/suspend-account', label: 'Suspend Account' },
-        { to: '#', label: 'Management' },
+        { to: '/management', label: 'Management' },
       ];
     }
 
