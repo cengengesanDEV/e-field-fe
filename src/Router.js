@@ -18,6 +18,7 @@ import PaymentOwner from './pages/Owner/PaymentOwner';
 
 import VerifyEmail from './helper/VerifyEmail';
 import SuspendPage from './pages/Admin/Suspend';
+import ManagementPage from './pages/Admin/Management';
 
 // routernya
 const router = createBrowserRouter([
@@ -36,6 +37,7 @@ const router = createBrowserRouter([
           { path: '/fields', element: <FieldOwner /> },
           { path: '/paymentowner', element: <PaymentOwner /> },
           { path: '/suspend-account', element: <SuspendPage /> },
+          { path: '/management', element: <ManagementPage /> },
         ],
       },
     ],
