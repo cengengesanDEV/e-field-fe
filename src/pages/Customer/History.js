@@ -169,7 +169,7 @@ function History() {
                   <Col span={6} className="d-flex flex-row align-activeKey-center justify-content-end">
                     <Space >
                       {status === 'pending' ? <Button type="primary" onClick={() => {setShowView(true); setDataPdf(e)}}>Bukti Transfer</Button> : null}
-                      {status === 'pending' ? <Button loading={loadCancel} type="primary" danger onClick={() => handlePaymentStatus(e)}>Cancel Booking</Button> : <Button type="primary">Tanda Booking</Button>}
+                      {status === 'pending' ? <Button loading={loadCancel} type="primary" danger onClick={() => handlePaymentStatus(e)}>Cancel Booking</Button> : <Button type="primary" onClick={() => {setShowView(true); setDataPdf(e)}}>Bukti Transfer</Button>}
                     </Space>
                   </Col>
                 </Row>
