@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "../components/parents/Navbar";
 import Footer from "../components/parents/Footer";
-import { Button, Col, Input, Row, Select, Steps, message } from "antd";
+import { Button, Col, Input, Row, Select, Skeleton, Steps, message } from "antd";
 import TitleName from "../components/childern/TitleName";
 import css from "../styles/Lapangan.module.css";
 import sample from "../assets/chair1.jpg";
@@ -17,6 +17,7 @@ function Lapangan() {
   const [data, setData] = useState([])
   const [page, setPage] = useState(1)
   const [totalPage, setTotalPage] = useState({prev : null, next : null})
+  const [loading, setLoading] = useState(false)
 
   const onChangeName = (value) => {
     setFilter({ ...filter, [value.target.name]: value.target.value });
@@ -35,42 +36,60 @@ function Lapangan() {
     getALLField()
   },[page])
 
+  const costing = (price) => {
+    return (
+      "Rp " +
+      parseFloat(price)
+          .toFixed()
+          .replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.")
+    );
+  };
+
   const getALLField = async () => {
     try {
+      setLoading(true)
       const result = await allFieldCustomer(filter.name, filter.location, filter?.sort || 'cheapest', page || 1)
       setData(result.data.data)
       setTotalPage({
         prev : result.data.meta.prev,
         next : result.data.meta.next,
       })
+      setLoading(false)
     } catch (error) {
       message.error('Server maintance')
+      setLoading(false)
     }
   }
 
   const handleFilterClick = async (isClick) => {
     if(isClick){
       try {
+        setLoading(true)
         const result = await allFieldCustomer(filter.name, filter.location, filter?.sort || 'cheapest', page || 1)
         setData(result.data.data)
         setTotalPage({
           prev : result.data.meta.prev,
           next : result.data.meta.next,
         })
+        setLoading(false)
       } catch (error) {
         message.error('Server maintance')
+        setLoading(false)
       }
     }else{
       setFilter({})
       try {
+        setLoading(true)
         const result = await allFieldCustomer()
         setData(result.data.data)
         setTotalPage({
           prev : result.data.meta.prev,
           next : result.data.meta.next,
         })
+        setLoading(false)
       } catch (error) {
         message.error('Server maintance')
+        setLoading(false)
       }
     }
   }
@@ -185,25 +204,29 @@ function Lapangan() {
                     ]}
                   />
                 </div>
-                <Row>
-                  {data.map((value, index) => (
-                    <Col span={8} key={index}>
-                      <div className={css.card} style={{ cursor: "pointer" }} onClick={() => {token ? navigate(`/lapangan/${value.id}`) : navigate(`/lapanganview/${value.id}`)}  }>
-                        <div className="d-flex flex-column">
-                          <img src={value.image_cover} alt="" width={"300px"} height={"200px"} style={{ backgroundSize: "cover" }} />
+                <Skeleton active loading={loading}>
+                  <Row>
+                    {data.map((value, index) => (
+                      <Col span={8} key={index}>
+                        <div className={css.card} style={{ cursor: "pointer" }} onClick={() => {token ? navigate(`/lapangan/${value.id}`) : navigate(`/lapanganview/${value.id}`)}  }>
+                          <div className="d-flex flex-column">
+                            <img src={value.image_cover} alt="" width={"300px"} height={"200px"} style={{ backgroundSize: "cover" }} />
+                          </div>
+                          <div className={css.card__content}>
+                            <p className={css.card__title} style={{fontFamily:'Tilt Neon'}}>{value.name}</p>
+                            <p style={{fontSize:'14px', fontFamily:'Tilt Neon'}}>Price : {costing(value?.price || 0)}</p>
+                            <p style={{fontSize:'14px', fontFamily:'Tilt Neon'}}>Open Field : {`${value?.start_hour || '-'}:00 - ${value?.end_hour || '-'}:00`}</p>
+                            <p style={{fontSize:'12px', fontFamily:'Tilt Neon'}}>Description : {value.description}</p>
+                          </div>
                         </div>
-                        <div className={css.card__content}>
-                          <p className={css.card__title}>{value.name}</p>
-                          <p className={css.card__description}>{value.description}</p>
-                        </div>
-                      </div>
-                    </Col>
-                  ))}
-                </Row>
-                <div className="d-flex flex-row justify-content-between w-100 mt-4">
-                  <Button type="primary" onClick={() => setPage(page - 1)} disabled={!totalPage.prev}>Back</Button>
-                  <Button type="primary" onClick={() => setPage(page + 1)} disabled={!totalPage.next}>Next</Button>
-                </div>
+                      </Col>
+                    ))}
+                  </Row>
+                  <div className="d-flex flex-row justify-content-between w-100 mt-4">
+                    <Button type="primary" onClick={() => setPage(page - 1)} disabled={!totalPage.prev}>Back</Button>
+                    <Button type="primary" onClick={() => setPage(page + 1)} disabled={!totalPage.next}>Next</Button>
+                  </div>
+                </Skeleton>
               </div>
             </Col>
           </Row>
