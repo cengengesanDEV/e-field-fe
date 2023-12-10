@@ -189,7 +189,8 @@ function PaymentOwner() {
   const patchSchedule = async () => {
     try {
       const res = await editPaymentSchedule(token , id, changeVal)
-      console.log(res.data)
+      // console.log(res.data)
+      getPayment()
       setShowChange(false)
       message.success('Success edit data')
     } catch (error) {
@@ -234,7 +235,7 @@ function PaymentOwner() {
 
           <div className="d-flex flex-row align-items-center justify-content-start gap-2 my-3">
           <Typography.Title level={5} className="">search : </Typography.Title>
-            <Input placeholder="search name" value={filter.name} onChange={(e) => setFilter({...filter, name : e.target.value})} style={{ width: "200px" }} />
+            <Input placeholder="search Name Booking" value={filter.name} onChange={(e) => setFilter({...filter, name : e.target.value})} style={{ width: "200px" }} />
             <Select
               showSearch
               placeholder="type field"
@@ -260,6 +261,7 @@ function PaymentOwner() {
               x: 1500,
               y: 300,
             }}
+            loading={loading}
             columns={columns} 
             dataSource={field?.map((e,i) => ({
               key : i + 1, 

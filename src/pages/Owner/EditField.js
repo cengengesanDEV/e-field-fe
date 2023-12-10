@@ -609,9 +609,10 @@ function EditField() {
               </Col>
             </Row>
           </div>
-          <Skeleton active loading={loadingApi}>
+          {/* <Skeleton> */}
             <Table
               columns={columns}
+              loading={loadingApi}
               dataSource={field.map((value, index) => ({
                 key: index + 1,
                 no: index + 1,
@@ -663,7 +664,7 @@ function EditField() {
                 ),
               }))}
             />
-          </Skeleton>
+          {/* </Skeleton> */}
         </div>
         <Modal
           title='Apakah anda yakin ingin menyimpan perubahan?'
