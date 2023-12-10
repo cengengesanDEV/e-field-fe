@@ -5,14 +5,14 @@ import { Outlet } from 'react-router-dom';
 
 function MainLayout() {
   return (
-    <div className='' style={{ minHeight: '100vh' }}>
-      <div style={{ maxHeight: '20vh' }}>
+    <div className='' style={{ height: '100%' }}>
+      <div style={{ height: '20%' }}>
         <Navbar />
       </div>
-      <div style={{ minHeight: '70vh' }}>
+      <div style={{ height: '70%' }}>
         <Outlet />
       </div>
-      <div style={{ height: '10vh' }}>
+      <div style={{ height: '10%' }}>
         <Footer />
       </div>
     </div>

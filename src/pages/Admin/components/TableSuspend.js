@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { getAllUsers } from '../api/getAllUser';
 import { useSelector } from 'react-redux';
-import { Button, Modal, Table, Tooltip } from 'antd';
+import { Button, Modal, Table, Tag, Tooltip } from 'antd';
 import {
   CloseCircleOutlined,
   DeleteOutlined,
@@ -32,6 +32,15 @@ export default function UserTable({ name }) {
 
   const columns = useMemo(
     () => [
+      {
+        title: 'No',
+        dataIndex: 'no',
+        key: 'no',
+        align: 'center',
+        render: (_, __, index) => (
+          <div style={{ textAlign: 'center' }}>{index + 1}</div>
+        ),
+      },
       {
         title: 'Full Name',
         dataIndex: 'full_name',
@@ -83,7 +92,8 @@ export default function UserTable({ name }) {
         key: 'status_acc',
         align: 'center',
         render: (text) => (
-          <div style={{ textAlign: 'center' }}>{text ? text : '-'}</div>
+          // <div style={{ textAlign: 'center' }}>{text ? text : '-'}</div>
+          <Tag color={text == 'active' ? "success" : text == 'pending' ? 'warning' : 'error'}>{text || '-'}</Tag>
         ),
       },
       {
@@ -182,7 +192,7 @@ export default function UserTable({ name }) {
       />
       <Modal
         width={400}
-        title='Apakah anda yakin ingin suspend user ini?'
+        title='Are u sure want to suspend this account ?'
         open={suspendModalVisibility}
         onCancel={toggleSuspendModal}
         confirmLoading={loadingSuspend}
@@ -218,7 +228,7 @@ export default function UserTable({ name }) {
       />
       <Modal
         width={400}
-        title='Apakah anda yakin ingin mengaktifkan user ini?'
+        title='Are u sure want to active this account ?'
         open={unsuspendModalVisibility}
         onCancel={toggleUnsusoendModal}
         confirmLoading={loadingUnsuspend}

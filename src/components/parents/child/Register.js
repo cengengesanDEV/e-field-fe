@@ -79,11 +79,11 @@ function Register({ changeTab = () => {} }) {
             },
             {
               min: 12,
-              message: "Number Phone Wrong!",
+              message: "telephone number is too short !",
             },
             {
               max: 13,
-              message: "Number Phone Wrong!",
+              message: "the phone number is too long !",
             },
           ]}
         >

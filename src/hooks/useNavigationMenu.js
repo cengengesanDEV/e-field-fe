@@ -7,12 +7,12 @@ export default function useNavigationMenu() {
   return useMemo(() => {
     const commonItems = [
       { to: '/dashboard', label: 'Dashboard' },
-      { to: '/profile', label: 'Profile' },
     ];
 
     if (profile.role === 'customer') {
       return [
         ...commonItems,
+        { to: '/profile', label: 'Profile' },
         { to: '/lapangan', label: 'Booking Fields' },
         { to: '/lapangan', label: 'Payment Field Fields' },
         { to: '/historypayment', label: 'History Payment' },
@@ -20,6 +20,7 @@ export default function useNavigationMenu() {
     } else if (profile.role === 'owner') {
       return [
         ...commonItems,
+        { to: '/profile', label: 'Profile' },
         { to: '/fields', label: 'Fields' },
         { to: '/paymentowner', label: 'Payment' },
       ];
