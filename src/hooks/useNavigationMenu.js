@@ -14,7 +14,7 @@ export default function useNavigationMenu() {
         ...commonItems,
         { to: '/profile', label: 'Profile' },
         { to: '/lapangan', label: 'Booking Fields' },
-        { to: '/lapangan', label: 'Payment Field Fields' },
+        { to: '/lapangan', label: 'Detail Fields' },
         { to: '/historypayment', label: 'History Payment' },
       ];
     } else if (profile.role === 'owner') {
