@@ -18,45 +18,35 @@ export default function OwnerTable({ name, onSelect }) {
         dataIndex: 'full_name',
         key: 'full_name',
         align: 'center',
-        render: (text) => (
-          <div style={{ textAlign: 'center' }}>{text ? text : '-'}</div>
-        ),
+        render: (text) => <div style={{ textAlign: 'center' }}>{text ? text : '-'}</div>,
       },
       {
         title: 'Phone Number',
         dataIndex: 'phone_number',
         key: 'phone_number',
         align: 'center',
-        render: (text) => (
-          <div style={{ textAlign: 'center' }}>{text ? text : '-'}</div>
-        ),
+        render: (text) => <div style={{ textAlign: 'center' }}>{text ? text : '-'}</div>,
       },
       {
         title: 'Identity Number',
         dataIndex: 'no_identity',
         key: 'no_identity',
         align: 'center',
-        render: (text) => (
-          <div style={{ textAlign: 'center' }}>{text ? text : '-'}</div>
-        ),
+        render: (text) => <div style={{ textAlign: 'center' }}>{text ? text : '-'}</div>,
       },
       {
         title: 'Account Number',
         dataIndex: 'no_rekening',
         key: 'no_rekening',
         align: 'center',
-        render: (text) => (
-          <div style={{ textAlign: 'center' }}>{text ? text : '-'}</div>
-        ),
+        render: (text) => <div style={{ textAlign: 'center' }}>{text ? text : '-'}</div>,
       },
       {
         title: 'Address',
         dataIndex: 'fullAddress',
         key: 'fullAddress',
         align: 'center',
-        render: (text) => (
-          <div style={{ textAlign: 'center' }}>{text ? text : '-'}</div>
-        ),
+        render: (text) => <div style={{ textAlign: 'center' }}>{text ? text : '-'}</div>,
       },
       {
         title: 'Actions',
@@ -72,11 +62,7 @@ export default function OwnerTable({ name, onSelect }) {
             }}
           >
             <Tooltip placement='top' title='Select'>
-              <Button
-                type='primary'
-                icon={<SelectOutlined />}
-                onClick={() => onSelect(record.id)}
-              />
+              <Button type='primary' icon={<SelectOutlined />} onClick={() => onSelect(record.id)} />
             </Tooltip>
           </div>
         ),
@@ -94,13 +80,9 @@ export default function OwnerTable({ name, onSelect }) {
         const owerList = response.data.data.map((data) => ({
           ...data,
           key: data.id,
-          fullAddress:
-            !data?.address || !data?.location
-              ? '-'
-              : `${data?.address}, ${data?.location}`,
+          fullAddress: !data?.address || !data?.location ? '-' : `${data?.address}, ${data?.location}`,
         }));
         setOwners(owerList);
-        setIsloading(false);
       } catch (error) {
         const owner = {
           full_name: 'dummy',
@@ -109,10 +91,10 @@ export default function OwnerTable({ name, onSelect }) {
           no_identity: '33365402457800001',
           no_rekening: '45687984231684646',
           key: 1,
-          id: 1,
+          id: 14,
         };
         setOwners([owner]);
-        console.log(error);
+      } finally {
         setIsloading(false);
       }
     },
@@ -125,12 +107,7 @@ export default function OwnerTable({ name, onSelect }) {
 
   return (
     <>
-      <Table
-        columns={columns}
-        dataSource={owners}
-        loading={isLoading}
-        scroll={{ x: 'max-content' }}
-      />
+      <Table columns={columns} dataSource={owners} loading={isLoading} scroll={{ x: 'max-content' }} />
     </>
   );
 }

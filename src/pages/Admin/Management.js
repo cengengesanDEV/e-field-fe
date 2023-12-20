@@ -18,15 +18,8 @@ export default function ManagementPage() {
         <div className='d-flex flex-row align-items-center mb-3'>
           <Row gutter={[16, 16]} style={{ width: '100%' }}>
             <Col span={6}>
-              <p style={{ fontFamily: 'Tilt Neon', paddingBottom: '10px' }}>
-                Search Owner Name :
-              </p>
-              <Input
-                placeholder='search name'
-                allowClear
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
+              <p style={{ fontFamily: 'Tilt Neon', paddingBottom: '10px' }}>Search Owner Name :</p>
+              <Input placeholder='search name' allowClear value={name} onChange={(e) => setName(e.target.value)} />
             </Col>
             <Col span={24}>
               <OwnerTable name={name} onSelect={setSelectedOwner} />
@@ -34,31 +27,31 @@ export default function ManagementPage() {
           </Row>
         </div>
       </div>
-      <div className='p-4'>
-        <hr />
-        <Typography.Title level={3} className='mt-2' underline>
-          Field List
-        </Typography.Title>
-        <div className='d-flex flex-row align-items-center mb-3'>
-          <Row gutter={[16, 16]} style={{ width: '100%' }}>
-            <Col span={6}>
-              <p style={{ fontFamily: 'Tilt Neon', paddingBottom: '10px' }}>
-                Search Field Name :
-              </p>
-              <Input
-                placeholder='search name'
-                allowClear
-                value={fieldName}
-                onChange={(e) => setFieldName(e.target.value)}
-                disabled={!selectedOwner}
-              />
-            </Col>
-            <Col span={24}>
-              <TableFIeld name={fieldName} onSelect={setFIeldId} />
-            </Col>
-          </Row>
+      {!selectedOwner ? null : (
+        <div className='p-4'>
+          <hr />
+          <Typography.Title level={3} className='mt-2' underline>
+            Field List
+          </Typography.Title>
+          <div className='d-flex flex-row align-items-center mb-3'>
+            <Row gutter={[16, 16]} style={{ width: '100%' }}>
+              <Col span={6}>
+                <p style={{ fontFamily: 'Tilt Neon', paddingBottom: '10px' }}>Search Field Name :</p>
+                <Input
+                  placeholder='search name'
+                  allowClear
+                  value={fieldName}
+                  onChange={(e) => setFieldName(e.target.value)}
+                  disabled={!selectedOwner}
+                />
+              </Col>
+              <Col span={24}>
+                <TableFIeld owner={selectedOwner} name={fieldName} onSelect={setFIeldId} />
+              </Col>
+            </Row>
+          </div>
         </div>
-      </div>
+      )}
     </>
   );
 }

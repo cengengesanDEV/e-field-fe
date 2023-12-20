@@ -3,60 +3,53 @@ import { useSelector } from 'react-redux';
 import { Button, Table, Tooltip } from 'antd';
 import { SelectOutlined } from '@ant-design/icons';
 import { useDebounce } from '@uidotdev/usehooks';
-import { getAllOwner } from '../api/getAllOwner';
+import { getFieldsByOwnerId } from '../api/getFieldsByOwner';
+import priceFormatter from '../../../utils/priceFormatter';
 
-export default function TableFIeld({ name, onSelect }) {
-  const [owners, setOwners] = useState(null);
+export default function TableFIeld({ name, owner, onSelect }) {
+  const [fields, setFields] = useState(null);
   const token = useSelector((state) => state.auth.token);
   const [isLoading, setIsloading] = useState(false);
-  //   const [selectedId, setSelectedId] = useState('');
-
   const columns = useMemo(
     () => [
       {
-        title: 'Full Name',
-        dataIndex: 'full_name',
-        key: 'full_name',
+        title: 'Field Name',
+        dataIndex: 'name',
+        key: 'name',
+        align: 'center',
+        render: (text) => <div style={{ textAlign: 'center' }}>{text ? text : '-'}</div>,
+      },
+      {
+        title: 'City',
+        dataIndex: 'city',
+        key: 'city',
+        align: 'center',
+        render: (text) => <div style={{ textAlign: 'center' }}>{text ? text : '-'}</div>,
+      },
+      {
+        title: 'Start Hour',
+        dataIndex: 'start_hour',
+        key: 'start_hour',
         align: 'center',
         render: (text) => (
-          <div style={{ textAlign: 'center' }}>{text ? text : '-'}</div>
+          <div style={{ textAlign: 'center' }}>{text ? `${text.toString().padStart(2, '0')}.00 WIB` : '-'}</div>
         ),
       },
       {
-        title: 'Phone Number',
-        dataIndex: 'phone_number',
-        key: 'phone_number',
+        title: 'end Hour',
+        dataIndex: 'end_hour',
+        key: 'end_hour',
         align: 'center',
         render: (text) => (
-          <div style={{ textAlign: 'center' }}>{text ? text : '-'}</div>
+          <div style={{ textAlign: 'center' }}>{text ? `${text.toString().padStart(2, '0')}.00 WIB` : '-'}</div>
         ),
       },
       {
-        title: 'Identity Number',
-        dataIndex: 'no_identity',
-        key: 'no_identity',
+        title: 'Price',
+        dataIndex: 'price',
+        key: 'price',
         align: 'center',
-        render: (text) => (
-          <div style={{ textAlign: 'center' }}>{text ? text : '-'}</div>
-        ),
-      },
-      {
-        title: 'Account Number',
-        dataIndex: 'no_rekening',
-        key: 'no_rekening',
-        align: 'center',
-        render: (text) => (
-          <div style={{ textAlign: 'center' }}>{text ? text : '-'}</div>
-        ),
-      },
-      {
-        title: 'Address',
-        dataIndex: 'fullAddress',
-        key: 'fullAddress',
-        align: 'center',
-        render: (text) => (
-          <div style={{ textAlign: 'center' }}>{text ? text : '-'}</div>
-        ),
+        render: (text) => <div style={{ textAlign: 'center' }}>{text ? priceFormatter(text) : '-'}</div>,
       },
       {
         title: 'Actions',
@@ -72,11 +65,7 @@ export default function TableFIeld({ name, onSelect }) {
             }}
           >
             <Tooltip placement='top' title='Select'>
-              <Button
-                type='primary'
-                icon={<SelectOutlined />}
-                onClick={() => onSelect(record.id)}
-              />
+              <Button type='primary' icon={<SelectOutlined />} onClick={() => onSelect(record.id)} />
             </Tooltip>
           </div>
         ),
@@ -84,53 +73,32 @@ export default function TableFIeld({ name, onSelect }) {
     ],
     [onSelect]
   );
-  const searchDebounce = useDebounce(name, 1000);
-
+  const nameDebounce = useDebounce(name, 1000);
+  const ownerDebounce = useDebounce(owner, 1000);
   const getData = useCallback(
-    async (name = '') => {
+    async (name = '', owner = '') => {
       try {
         setIsloading(true);
-        const response = await getAllOwner(token, name);
-        const owerList = response.data.data.map((data) => ({
+        const response = await getFieldsByOwnerId(token, name, owner);
+        const fieldList = response.data.data.map((data) => ({
           ...data,
           key: data.id,
-          fullAddress:
-            !data?.address || !data?.location
-              ? '-'
-              : `${data?.address}, ${data?.location}`,
         }));
-        setOwners(owerList);
-        setIsloading(false);
+        setFields(fieldList);
       } catch (error) {
-        const owner = {
-          full_name: 'dummy',
-          fullAddress: 'dummy',
-          phone_number: '081234567890',
-          no_identity: '33365402457800001',
-          no_rekening: '45687984231684646',
-          key: 1,
-          id: 1,
-        };
-        setOwners([owner]);
-        console.log(error);
+      } finally {
         setIsloading(false);
       }
     },
     [token]
   );
-
   useEffect(() => {
-    getData(searchDebounce);
-  }, [searchDebounce, getData]);
+    getData(ownerDebounce, nameDebounce);
+  }, [getData, nameDebounce, ownerDebounce]);
 
   return (
     <>
-      <Table
-        columns={columns}
-        dataSource={owners}
-        loading={isLoading}
-        scroll={{ x: 'max-content' }}
-      />
+      <Table columns={columns} dataSource={fields} loading={isLoading} scroll={{ x: 'max-content' }} />
     </>
   );
 }
