@@ -1,19 +1,13 @@
 import axios from 'axios';
 import { ApiWithAuth } from '../helper/CustomThrowToken';
 
-
 // running Localhost 8080
 // http://localhost:8080
 
-
-
 // Testing API
-export const  API = {
-  getProfile : () => ApiWithAuth.get('users')
-}
-
-
-
+export const API = {
+  getProfile: () => ApiWithAuth.get('users'),
+};
 
 // API udah jadi
 export const loginAuth = (body) => {
@@ -23,7 +17,6 @@ export const loginAuth = (body) => {
 export const registerAuth = (body) => {
   return axios.post(`https://e-field.vercel.app/api/users`, body);
 };
-
 
 // export const getProfile = (token) => {
 //   return axios.get(`https://e-field.vercel.app/api/users`, {
@@ -46,9 +39,7 @@ export const getDetailFieldOwner = (id) => {
 };
 
 export const allFieldCustomer = (name = '', city = '', sort = '', page = 1) => {
-  return axios.get(
-    `https://e-field.vercel.app/api/field?limit=6&page=${page}&city=${city}&name=${name}&sort=${sort}`
-  );
+  return axios.get(`https://e-field.vercel.app/api/field?limit=6&page=${page}&city=${city}&name=${name}&sort=${sort}`);
 };
 
 export const getDetailField = (id, date) => {
@@ -97,29 +88,27 @@ export const editFieldOwner = (token, body, id) => {
   });
 };
 
-
-export const postPaymentCustomer = (token,body) => {
+export const postPaymentCustomer = (token, body) => {
   return axios.post(`https://e-field.vercel.app/api/payment/`, body, {
-    headers:{
-      'x-access-token' : token
-    }
-  });
-};
-
-export const deleteFieldById = (id, token) => {
-  return axios.get(`https://e-field.vercel.app/api/field/delete/${id}`, {
-    'x-access-token': token,
-  });
-};
-
-export const getHistoryCustomer = (token,status) => {
-  return axios.get(`https://e-field.vercel.app/api/payment/customer/history/${status}`, {
     headers: {
       'x-access-token': token,
     },
   });
 };
 
+export const deleteFieldById = (id, token) => {
+  return axios.delete(`https://e-field.vercel.app/api/field/delete/${id}`, {
+    'x-access-token': token,
+  });
+};
+
+export const getHistoryCustomer = (token, status) => {
+  return axios.get(`https://e-field.vercel.app/api/payment/customer/history/${status}`, {
+    headers: {
+      'x-access-token': token,
+    },
+  });
+};
 
 export const logout = (token) => {
   return axios.delete(`https://e-field.vercel.app/api/auth/`, {
@@ -129,8 +118,7 @@ export const logout = (token) => {
   });
 };
 
-
-export const getHistoryOwner = (token,status,name,type) => {
+export const getHistoryOwner = (token, status, name, type) => {
   return axios.get(`https://e-field.vercel.app/api/payment/owner/history?status=${status}&username=${name}&type=${type}`, {
     headers: {
       'x-access-token': token,
@@ -138,8 +126,7 @@ export const getHistoryOwner = (token,status,name,type) => {
   });
 };
 
-
-export const changeStatusPaymentOwner = (token,id,body) => {
+export const changeStatusPaymentOwner = (token, id, body) => {
   return axios.patch(`https://e-field.vercel.app/api/payment/owner/status/${id}`, body, {
     headers: {
       'x-access-token': token,
@@ -147,15 +134,13 @@ export const changeStatusPaymentOwner = (token,id,body) => {
   });
 };
 
-
-export const editPaymentSchedule = (token,id,body) => {
+export const editPaymentSchedule = (token, id, body) => {
   return axios.patch(`https://e-field.vercel.app/api/payment/owner/booking/${id}`, body, {
     headers: {
       'x-access-token': token,
     },
   });
 };
-
 
 export const sendEmail = (email) => {
   return axios.patch(`https://e-field.vercel.app/api/users/forgot/${email}`, {});
