@@ -5,11 +5,11 @@ export const useSuspendUser = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [suspendModalVisibility, setSuspaendModalVisibility] = useState(false);
 
-  const suspendUser = useCallback(async (id, token, cb) => {
+  const suspendUser = useCallback(async (id, token, cb, messageSuspend) => {
     try {
       setIsLoading(true);
 
-      await suspendUserApi(token, id);
+      await suspendUserApi(token, id, messageSuspend);
       setIsLoading(false);
       setSuspaendModalVisibility(false);
       if (typeof cb === 'function') cb();

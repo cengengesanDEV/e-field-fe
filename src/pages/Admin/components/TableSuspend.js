@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { getAllUsers } from '../api/getAllUser';
 import { useSelector } from 'react-redux';
-import { Button, Modal, Table, Tag, Tooltip } from 'antd';
+import { Button, Col, Input, Modal, Row, Table, Tag, Tooltip, message } from 'antd';
 import {
   CloseCircleOutlined,
   DeleteOutlined,
@@ -17,6 +17,7 @@ export default function UserTable({ name }) {
   const token = useSelector((state) => state.auth.token);
   const [isLoading, setIsloading] = useState(false);
   const [selectedId, setSelectedId] = useState('');
+  const [msgSuspend, setMsgSuspend] = useState('')
   const {
     isLoading: loadingSuspend,
     suspendModalVisibility,
@@ -210,8 +211,9 @@ export default function UserTable({ name }) {
             onClick={() => {
               suspendUser(selectedId, token, () => {
                 setSelectedId('');
+                setMsgSuspend('');
                 getData(name);
-              });
+              }, msgSuspend);
             }}
             icon={<PoweroffOutlined />}
           >
@@ -225,7 +227,14 @@ export default function UserTable({ name }) {
             Cancel
           </Button>,
         ]}
-      />
+      >
+        <Row>
+          <Col span={6}>Message :</Col>
+          <Col span={18}>
+            <Input value={msgSuspend} onChange={(e) => setMsgSuspend(e.target.value)}  />
+          </Col>
+        </Row>
+      </Modal>
       <Modal
         width={400}
         title='Are u sure want to active this account ?'
