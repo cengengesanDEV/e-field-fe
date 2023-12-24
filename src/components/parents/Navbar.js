@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import css from './css/Navbar.module.css';
-import { Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import Logos from '../../assets/JakartaLogo1.png';
 import { useSelector } from 'react-redux';
 import { Button, Modal } from 'antd';
@@ -12,27 +12,14 @@ function Navbar() {
   const token = useSelector((state) => state.auth.token);
 
   const navigationMenu = useNavigationMenu();
-  const { isLoading, isModalOpen, setIsModalOpen, handleLogout } =
-    useLogout(token);
+  const { isLoading, isModalOpen, setIsModalOpen, handleLogout } = useLogout(token);
 
   return (
     <>
       <div className={css.headNavbar}>
-        <img
-          src={Logos}
-          alt='logoJakarta'
-          width={'50px'}
-          height={'50px'}
-          style={{ backgroundSize: 'cover' }}
-        />
+        <img src={Logos} alt='logoJakarta' width={'50px'} height={'50px'} style={{ backgroundSize: 'cover' }} />
         <p className={css.title}>Soccer Fields DKI Jakarta</p>
-        <img
-          src={Logos}
-          alt='logoJakarta'
-          width={'50px'}
-          height={'50px'}
-          style={{ backgroundSize: 'cover' }}
-        />
+        <img src={Logos} alt='logoJakarta' width={'50px'} height={'50px'} style={{ backgroundSize: 'cover' }} />
       </div>
       <div className={css.headListNavbar}>
         <div className={css.bodyList}>
@@ -40,12 +27,18 @@ function Navbar() {
             ? null
             : navigationMenu.map((item, index, array) => (
                 <Fragment key={index}>
-                  {index > 0 && index < array.length && (
-                    <p className={css.Pembatas}>|</p>
-                  )}
-                  <Link to={item.to} className={css.list}>
+                  {index > 0 && index < array.length && <p className={css.Pembatas}>|</p>}
+                  <NavLink
+                    to={item.to}
+                    className={css.list}
+                    style={({ isActive }) => {
+                      return {
+                        fontWeight: isActive ? 'bold' : 'inherit',
+                      };
+                    }}
+                  >
                     {item.label}
-                  </Link>
+                  </NavLink>
                 </Fragment>
               ))}
           {token != null ? (
@@ -64,15 +57,15 @@ function Navbar() {
             </>
           ) : (
             <>
-              <Link to='/lapanganview' className={css.list}>
+              <NavLink to='/lapanganview' className={css.list}>
                 Fields
-              </Link>
+              </NavLink>
               <p to='#' className={css.Pembatas}>
                 |
               </p>
-              <Link to='/' className={css.list}>
+              <NavLink to='/' className={css.list}>
                 Login
-              </Link>
+              </NavLink>
             </>
           )}
         </div>
@@ -84,19 +77,10 @@ function Navbar() {
           confirmLoading={isLoading}
           onOk={handleLogout}
           footer={[
-            <Button
-              type='primary'
-              danger
-              onClick={handleLogout}
-              icon={<i className='fa-solid fa-right-from-bracket'></i>}
-            >
+            <Button type='primary' danger onClick={handleLogout} icon={<i className='fa-solid fa-right-from-bracket'></i>}>
               Logout
             </Button>,
-            <Button
-              type='primary'
-              onClick={() => setIsModalOpen(false)}
-              icon={<CloseCircleOutlined />}
-            >
+            <Button type='primary' onClick={() => setIsModalOpen(false)} icon={<CloseCircleOutlined />}>
               Cancel
             </Button>,
           ]}
