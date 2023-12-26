@@ -113,7 +113,8 @@ export default function UserTable({ name }) {
             <Tooltip placement='top' title='Suspend'>
               <Button
                 type='primary'
-                style={{ backgroundColor: '#ffb73f' }}
+                // style={{ backgroundColor: '#ffb73f' }}
+                danger
                 disabled={
                   record.status_acc === 'pending' ||
                   record.status_acc === 'suspend'
@@ -128,7 +129,7 @@ export default function UserTable({ name }) {
             <Tooltip placement='top' title='Unsuspend'>
               <Button
                 type='primary'
-                style={{ backgroundColor: 'green' }}
+                // style={{ backgroundColor: 'green' }}
                 disabled={
                   record.status_acc === 'pending' ||
                   record.status_acc === 'active'
@@ -140,14 +141,14 @@ export default function UserTable({ name }) {
                 icon={<ForwardOutlined />}
               />
             </Tooltip>
-            <Tooltip placement='top' title='Delete'>
+            {/* <Tooltip placement='top' title='Delete'>
               <Button
                 type='primary'
                 danger
                 disabled={record.status_acc === 'pending'}
                 icon={<DeleteOutlined />}
               />
-            </Tooltip>
+            </Tooltip> */}
           </div>
         ),
       },

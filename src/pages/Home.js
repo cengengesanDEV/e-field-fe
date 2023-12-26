@@ -1,7 +1,7 @@
 import React from 'react'
 import Navbar from '../components/parents/Navbar'
 import { Row, Col } from 'antd'
-import logoDKI from '../assets/pemprov.png'
+import logoDKI from '../assets/ball.jpeg'
 import FormRelog from '../components/parents/FormRelog'
 import Footer from '../components/parents/Footer'
 
@@ -16,7 +16,7 @@ function Home() {
                     <Row>
                         <Col span={10}>
                             <div className='w-100 d-flex flex-row justify-content-center align-items-center'>
-                                <img src={logoDKI} alt="LogoDKIJakarta" style={{padding:'20px'}} />
+                                <img src={logoDKI} width={300} height={300} alt="LogoDKIJakarta" style={{padding:'20px'}} />
                             </div>
                         </Col>
                         <Col span={14}>
