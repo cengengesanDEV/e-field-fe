@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import { suspendUserApi } from '../api/suspendUser';
+import { message } from 'antd';
 
 export const useSuspendUser = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -10,6 +11,7 @@ export const useSuspendUser = () => {
       setIsLoading(true);
 
       await suspendUserApi(token, id, messageSuspend);
+      message.success('success suspend account')
       setIsLoading(false);
       setSuspaendModalVisibility(false);
       if (typeof cb === 'function') cb();

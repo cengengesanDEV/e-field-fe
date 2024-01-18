@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import { unSuspendUser } from '../api/unSuspendUser';
+import { message } from 'antd';
 
 export const useUnsuspendUser = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -11,6 +12,7 @@ export const useUnsuspendUser = () => {
       setIsLoading(true);
 
       await unSuspendUser(token, id);
+      message.success('success unsuspend account')
       setIsLoading(false);
       setUnsuspendModalVisibility(false);
       if (typeof cb === 'function') cb();
