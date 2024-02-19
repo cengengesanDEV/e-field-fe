@@ -5,13 +5,10 @@ export default function useNavigationMenu() {
   const profile = useSelector((state) => state.auth.profile);
 
   return useMemo(() => {
-    const commonItems = [
-      { to: '/dashboard', label: 'Dashboard' },
-    ];
+    const commonItems = [{ to: '/dashboard', label: 'Dashboard' }];
 
     if (profile.role === 'customer') {
       return [
-        ...commonItems,
         { to: '/profile', label: 'Profile' },
         { to: '/lapangan', label: 'Booking Fields' },
         // { to: '/lapangan', label: 'Detail Fields' },

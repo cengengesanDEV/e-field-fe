@@ -42,8 +42,9 @@ export const allFieldCustomer = (name = '', city = '', sort = '', page = 1) => {
   return axios.get(`https://e-field.vercel.app/api/field?limit=6&page=${page}&city=${city}&name=${name}&sort=${sort}`);
 };
 
-export const getDetailField = (id, date) => {
-  return axios.get(`https://e-field.vercel.app/api/field/detail/${id}/${date}`);
+export const getDetailField = (id, date, isEditSchedule = false) => {
+  const params = isEditSchedule ? { editSchedule: true } : {};
+  return axios.get(`https://e-field.vercel.app/api/field/detail/${id}/${date}`, { params });
 };
 
 export const patchProfile = (token, body) => {
