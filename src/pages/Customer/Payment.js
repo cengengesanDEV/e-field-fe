@@ -152,6 +152,10 @@ function Payment() {
         setBookingTime({ clockIn: hour, clockOut: null });
         return;
       }
+      if (hour === bookingTime.clockIn) {
+        setBookingTime({ clockIn: null, clockOut: null });
+        return;
+      }
       if (hour < bookingTime.clockIn) {
         setBookingTime({ clockIn: hour, clockOut: null });
         return;
@@ -320,9 +324,6 @@ function Payment() {
                       size={5}
                       label={`Clock Out : ${bookingTime.clockOut ?? '-'}${bookingTime.clockOut ? ':00' : ''}`}
                     />
-                    <Button danger type='primary' onClick={() => setBookingTime({ clockIn: null, clockOut: null })}>
-                      Reset Clock
-                    </Button>
                   </Col>
                 </Row>
                 <Row gutter={[20, 20]} className='mt-5'>
