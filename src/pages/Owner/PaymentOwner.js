@@ -121,7 +121,7 @@ function PaymentOwner() {
       width: 120,
       fixed:'right',
       render : (e) => (
-        <Tag color={e.isDp ? 'error' : "success"}>{e.isDp ? 'down payment' : 'full payment'}</Tag>
+        (status == "success") ? <Tag color='success'>Full Payment</Tag> :  <Tag color={e.isDp ? 'error' : "success"}>{e.isDp ? 'down payment' : 'full payment'}</Tag>
       )
     },
     {
