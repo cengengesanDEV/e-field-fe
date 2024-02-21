@@ -42,8 +42,12 @@ function Login() {
         email: values.email,
         passwords: values.password,
       };
-      await dispatch(authActions.loginThunk(body));
-      navigate("/dashboard");
+      const result = await dispatch(authActions.loginThunk(body));
+      if(result == 'customer') {
+        navigate('/lapangan')
+      } else {
+        navigate('/dashboard')
+      }
       setLoading(false);
       message.success("Login success");
     } catch (error) {

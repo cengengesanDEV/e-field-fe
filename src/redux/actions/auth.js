@@ -26,6 +26,7 @@ const loginPending = () => ({
         const result = await loginAuth(body);
         await dispatch(loginFulfilled(result.data.data.token));
         await dispatch(userIDThunk(result.data.data.token))
+        return result.data.data.role
       } catch (error) {
         console.log(error.response.data.msg);
         dispatch(loginRejected(error.response.data.msg));
