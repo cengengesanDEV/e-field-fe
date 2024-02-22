@@ -109,7 +109,7 @@ function Payment() {
       start_play: bookingTime.clockIn,
       end_play: bookingTime.clockOut,
       booking_date: moment(date).format('YYYY-MM-DD'),
-      total_payment: fieldData.field.price,
+      total_payment: fieldData.field.price * (bookingTime.clockOut - bookingTime.clockIn),
       play_date: moment().format('YYYY-MM-DD'),
       username: username,
       bank_name: profile.bank_name,
@@ -405,10 +405,10 @@ function Payment() {
                           onChange={(e) => {
                             const values = e.target.value;
                             const parser = values.replace(/[^0-9]/g, '');
-                            if (fieldData?.field?.price > parser) {
+                            if (fieldData?.field?.price * (bookingTime.clockOut - bookingTime.clockIn) > parser) {
                               setPrice(parser);
                             } else {
-                              setPrice(fieldData?.field?.price);
+                              setPrice(fieldData?.field?.price * (bookingTime.clockOut - bookingTime.clockIn));
                             }
                           }}
                           placeholder='price'
